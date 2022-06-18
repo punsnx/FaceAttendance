@@ -1,7 +1,7 @@
-console.log("pun");
+console.log("it's Sirisuk");
 
 function mainLoad() {
-    console.log("run");
+    console.log("runMainFunction");
     NavLoad();
 }
 function NavLoad() {
