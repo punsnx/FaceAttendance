@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Authentication</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="/CSS/style.css" rel="stylesheet" />
+    <script src="/JavaScripts/main.js"></script>
+  </head>
+
+  <body onload="mainLoad()">
+    <header></header>
+    <section>
+      <nav>
+        <div class="containNAV">
+          <a id="navbt1" type="button"></a>
+          <a id="navbt2"></a>
+          <a id="navbt3"></a>
+          <a id="navbt4"></a>
+        </div>
+      </nav>
+      <div class="containMainBody">
+        <div class="containAuth">
+          <form name="signupForm" id="signupForm" action="/JavaScripts/auth.js">
+            <label for="authEmail">Enter Email</label>
+            <input type="text" id="authEmail" placeholder="Email" />
+            <label for="authUsername">Enter Username</label>
+            <input type="text" id="authUsername" placeholder="Username" />
+            <label for="authPassword">Enter Password</label>
+            <input type="password" id="authPassword" placeholder="Password" />
+            <label for="authCFPassword">Enter Password Again</label>
+            <input type="password" id="authCFPassword" placeholder="Password" />
+            <input type="submit" value="Create Account" id="SubmitAuth" />
+            <label id="haveAccountLoginLabel">Already have an account? </label
+            ><a id="haveAccountLogin" href="welcome.html">Sign in</a>
+          </form>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

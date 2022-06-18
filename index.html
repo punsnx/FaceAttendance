@@ -4,28 +4,42 @@
     <title>Home</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="css/style.css" rel="stylesheet" />
+    <link href="/CSS/style.css" rel="stylesheet" />
+    <script src="/JavaScripts/main.js"></script>
   </head>
-  <body>
-    <header>
-      <h1>Face Ateendance</h1>
-    </header>
+
+  <body onload="mainLoad()">
+    <header></header>
     <section>
       <nav>
-        <div class="containerNAV"><button>Home</button></div>
+        <div class="containNAV">
+          <a id="navbt1" type="button"></a>
+          <a id="navbt2"></a>
+          <a id="navbt3"></a>
+          <a id="navbt4"></a>
+        </div>
       </nav>
-      <div class="containerProfileIMG">
-        <canvas
-          id="Profile"
-          width="300"
-          height="300"
-          style="
-            width: 300px;
-            height: 300px;
-            display: block;
-            border: 1px solid black;
-          "
-        ></canvas>
+      <div class="containMainBody">
+        <div class="containIMG">
+          <canvas
+            id="Profile"
+            width="300"
+            height="300"
+            style="
+              width: 300px;
+              height: 300px;
+              display: block;
+              border: 1px solid black;
+            "
+          ></canvas>
+        </div>
+        <div class="profileDetails">
+          <h1>Face Atendance</h1>
+          <h1>Fullname</h1>
+          <h1>Class</h1>
+          <h1>Number</h1>
+          <h1>ID</h1>
+        </div>
       </div>
     </section>
   </body>
