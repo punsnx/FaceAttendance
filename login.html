@@ -1,10 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title></title>
+    <title>Sign in</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="css/style.css" rel="stylesheet" />
+    <link href="/CSS/style.css" rel="stylesheet" />
+    <script src="/JavaScripts/main.js"></script>
   </head>
-  <body></body>
+
+  <body onload="mainLoad()">
+    <header></header>
+    <section>
+      <nav>
+        <div class="containNAV">
+          <a id="navbt1" type="button"></a>
+          <a id="navbt2"></a>
+          <a id="navbt3"></a>
+          <a id="navbt4"></a>
+        </div>
+      </nav>
+      <div class="containMainBody">
+        <div class="containLogin">
+          <form
+            name="signinForm"
+            id="signinForm"
+            action="/JavaScripts/login.js"
+          >
+            <label for="userEmail">Username or Email</label>
+            <input type="text" id="userEmail" placeholder="Username or Email" />
+            <br />
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="password" />
+            <br />
+            <input type="checkbox" id="rememberUser" value="RememberPASSTrue" />
+            <label for="rememberUser" id="rememberUser">Remember</label>
+            <a id="forgetPassword" href=".">Forget password?</a>
+            <br />
+            <input type="submit" value="Login" id="SubmitLogin" />
+            <br />
+            <label id="NoAccountSignUpLabel">Don't have an account? </label>
+            <a id="NoAccountSignUp" href="/auth.html">Sign up</a>
+          </form>
+        </div>
+      </div>
+    </section>
+  </body>
 </html>
