@@ -25,17 +25,17 @@ nav {
   padding-top: 25px;
   padding-bottom: 25px;
   margin-top: 15px;
-  margin-bottom: auto;
+  margin-bottom: auto; 
   margin-left: 0.5%;
   border-radius: 25px;
   display: inline-block;
-  background-color: rgb(0, 199, 96);
+  background-color: rgb(255, 114, 7);
   color: white;
 }
-.containNAV a:hover {
-  background-color: rgb(0, 0, 0);
+.containNAV a:hover { 
+  background-color: rgb(255, 219, 87);
   cursor: pointer;
-}
+} 
 .containIMG canvas {
   background-color: white;
   margin-top: 50px;
@@ -77,8 +77,62 @@ nav {
   padding: 25px;
 }
 #signupForm label {
+  margin-top: 10px;
+  display:  block;
   color: white;
 }
 #signinForm label {
+  margin-top: 10px;
+  display:  block;
   color: white;
 }
+#signupForm input {
+  font-size: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 25px;
+  margin-top: 10px;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  padding-left: 10px;
+  padding-right: 10px;
+  width: 80%;
+  display: block;
+}
+#signinForm input {
+  font-size: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 25px;
+  margin-top: 10px;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  padding-left: 10px;
+  padding-right: 10px;
+  width: 80%;
+  display: block;
+}
+  #SubmitAuth {
+    background-color: rgb(157, 229, 157);
+    border: 2px solid rgb(142, 255, 142);
+  } 
+  #SubmitLogin {
+    border: 2px solid rgb(142, 255, 142);
+    background-color: rgb(157, 229, 157);
+  }
+  #SubmitAuth:hover {
+    cursor: pointer;
+    background-color: rgb(63, 85, 63);
+  }
+  #SubmitLogin:hover {
+    cursor: pointer;
+    background-color: rgb(63, 85, 63);
+  }
+  #authFormTitle {
+    text-align: center;
+    font-size: 50px;
+  }
+  #loginFormTitle {
+    text-align: center;
+    font-size: 50px;
+  }
