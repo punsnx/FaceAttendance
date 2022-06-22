@@ -10,7 +10,7 @@ const cookieParser = require('cookie-parser');
 const port = process.env.port;
 
 var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://localhost:27017/";
+var url = "mongodb+srv://devfadb:0957571542@skmongocluster.skdn9.mongodb.net/?retryWrites=true&w=majority";
 
 
 app.use(morgan("combined"));
