@@ -22,7 +22,19 @@ app.use("/JS", express.static(__dirname + "/src/views/JavaScripts"));
 app.use(express.urlencoded({ extended: false }));
 
 app.get("/", (req, res) => {
-  res.render("pages/index", { title: "home" });
+  MongoClient.connect(url, function(err, db) {
+    if (err) throw err;
+    var dbo = db.db("FaceAttendance");
+    dbo.collection("users").find({}).toArray(function(err, result) {
+      if (err) throw err;
+      chalk.magenta(console.log(result));
+      res.render("pages/index", { title: "home", results: result });
+      db.close();
+    });
+  });
+  
+  
+
 });
 app.get("/login", (req, res) => {
   res.render("pages/login", { title: "login" });

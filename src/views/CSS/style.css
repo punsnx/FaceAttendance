@@ -136,3 +136,12 @@ nav {
     text-align: center;
     font-size: 50px;
   }
+  .showUsers {
+    width: 30%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .showUsers h4,p {
+    color: white;
+    text-align: center;
+  }

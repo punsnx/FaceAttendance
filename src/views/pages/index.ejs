@@ -17,6 +17,18 @@
           <h1>Number</h1>
           <h1>ID</h1>
         </div>
+        <div class="showUsers">
+          <h4>Users List</h4>
+          <hr>
+          <% results.map((result)=> { %>
+            <h4>Name : <%=result.Firstname%> <%=result.Lastname%></h4>
+            <p>Email : <%=result.email%></p>
+            <p>Class : <%=result.Class%>/<%=result.Room%> No : <%=result.No%></p>
+            <p>StudentID : <%=result.studentID%></p>
+            <hr>
+          <% }) %>  
+        </div>
+
       </div>
     </section>
   </body>
