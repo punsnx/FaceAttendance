@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Sign in</title>
+    <%- include('../partials/head.ejs'); %>
+    <script src="/JS/login.js"></script>
+  </head>
+
+  <body onload="mainLoad(); onloadlogin();">
+    <header></header>
+    <section>
+      <nav><%- include('../partials/nav.ejs'); %></nav>
+      <div class="containMainBody">
+        <div class="containLogin">
+          <form
+            name="signinForm"
+            id="signinForm"
+            action="/login"
+            method="POST"
+          >
+            <label for="userEmail">Username or Email</label>
+            <input type="text" id="userEmail" placeholder="Username or Email" required/>
+            <br />
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="password" required/>
+            <br />
+            <input type="checkbox" id="rememberUser" value="RememberPASSTrue" />
+            <label for="rememberUser" id="rememberUser">Remember</label>
+            <a id="forgetPassword" >Forget password?</a>
+            <br />
+            <input type="submit" value="Login" id="SubmitLogin"/>
+            <br />
+            <label id="NoAccountSignUpLabel">Don't have an account? </label>
+            <a id="noAccountSignUp">Sign up</a>
+          </form>
+          <p id="showdata" style="color: white;"></p>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>
