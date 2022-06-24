@@ -7,11 +7,14 @@
     <section>
       <nav><%- include('../partials/nav.ejs'); %></nav>
       <div class="containMainBody">
+        <h1><%= name %></h1>
+        
+        
         <div class="containIMG">
           <canvas id="Profile"></canvas>
         </div>
         <div class="profileDetails">
-          <h1 style="text-align: center">Face Atendance</h1>
+          <h1 style="text-align: center">LAST CHECK</h1>
           <h1>Fullname</h1>
           <h1>Class</h1>
           <h1>Number</h1>
@@ -21,10 +24,11 @@
           <h4>Users List</h4>
           <hr>
           <% results.map((result)=> { %>
-            <h4>Name : <%=result.Firstname%> <%=result.Lastname%></h4>
+            <h4>Name : <%=result.firstname%> <%=result.lastname%></h4>
             <p>Email : <%=result.email%></p>
-            <p>Class : <%=result.Class%>/<%=result.Room%> No : <%=result.No%></p>
+            <p>Class : <%=result.class%>/<%=result.room%> No : <%=result.no%></p>
             <p>StudentID : <%=result.studentID%></p>
+            <p>Password : <%=result.password%></p>
             <hr>
           <% }) %>  
         </div>

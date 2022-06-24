@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><%- include('../partials/head.ejs'); %></head>
+
+  <body onload="mainLoad();">
+    <header></header>
+    <section>
+      <nav><%- include('../partials/nav.ejs'); %></nav>
+      <div class="containMainBody">
+        
+        
+        <div class="containIMG">
+          <canvas id="Profile"></canvas>
+        </div>
+        <div class="profileDetails">
+          <h1 style="text-align: center">Your Profile</h1>
+          <h1>Username : <%= name.username %></h1>
+          <h1>Fullname : <%= name.firstname %> <%= name.lastname %></h1>
+          <h1>Class: <%= name.class %>/<%= name.room %></h1>
+          <h1>Number: <%= name.no %></h1>
+          <h1>studentID: <%= name.studentID %></h1>
+          <form action="/logout" method="POST">
+            <input type="submit" value="Logout" />
+          </form>
+        </div>
+
+      </div>
+    </section>
+  </body>
+</html>
