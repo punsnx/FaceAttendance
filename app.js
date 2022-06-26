@@ -7,14 +7,30 @@ const express = require("express");
 const app = express();
 const debug = require("debug");
 const chalk = require("chalk");
+const mongoose = require("mongoose");
 const morgan = require("morgan");
 const flash = require("express-flash");
 const session = require("express-session");
 const passport =  require("passport");
 const bcrypt = require("bcrypt");
+const formidable = require("formidable");
+const fs = require("fs");
 const authProcess = require("./authentication.js");
+const User = require("./models/user.js");
 const initializePassport = require("./passport-config.js");
-
+const { constants } = require('fs');
+const connectDB = async () => {
+  try {
+    const con = await mongoose.connect(
+      "mongodb+srv://skdev:skdev123456789@skmongocluster.skdn9.mongodb.net/FaceAttendance"
+    );
+    console.log(`MongoDB connected: ${con.connection.host}`);
+  } catch (err) {
+    console.log(err);
+    process.exit(1);
+  }
+};
+connectDB();
 initializePassport(
   passport
 //  email => users.find(user => user.email === email),
@@ -23,11 +39,13 @@ initializePassport(
 var MongoClient = require("mongodb").MongoClient;
 var url = "mongodb://localhost:27017";
 //"mongodb+srv://skdev:skdev123456789@skmongocluster.skdn9.mongodb.net/?retryWrites=true&w=majority";  
+// "mongodb://localhost:27017";
 
 //app.use
 app.use(morgan("combined"));
 app.use("/CSS", express.static(__dirname + "/src/views/CSS"));
 app.use("/JS", express.static(__dirname + "/src/views/JavaScripts"));
+app.use("/IMG", express.static(__dirname + "/src/views/IMG"));
 
 app.use(express.urlencoded({ extended: false }));
 app.use(flash());
@@ -54,7 +72,7 @@ app.get("/", (req, res) => {
       chalk.magenta(console.log(result));
       if (req?.user) {
         console.log(req.user.name);   
-        res.render("pages/index", { title: "home", results: result, name: req.user.username });
+        res.render("pages/index", { title: "home", results: result, name: "welcome " + req.user.username });
       }else {
         res.render("pages/index", { title: "home", results: result, name: "not login" });
       }
@@ -100,7 +118,8 @@ app.post("/auth", async (req, res) => {
 });
 //Profile
 app.get("/profile", checkAuthenticated, (req, res) => {
-  res.render("pages/profile", { title: "Profile", name: req.user });
+  res.render("pages/profile", { title: "Profile", name: req.user, 
+  profileFile: req.user.profileFile });
 })
 app.post('/logout', function(req, res, next) {
   req.logout(function(err) {
@@ -108,6 +127,40 @@ app.post('/logout', function(req, res, next) {
   res.redirect('/');
 });
 });
+
+app.get("/test", async (req, res) => {
+  const user = await User.findOne({});
+  res.send(user.username)
+})
+
+
+app.post('/process/uploadprofile', (req, res) => {
+  var form = new formidable.IncomingForm();
+  form.parse(req, (err, fields, files) => {
+    if (err) {
+      res.send(err);
+    } else {
+      //res.json({ files });
+      var oldpath = files.profileIMGuploading.filepath;
+      var newpath = process.env.HOME + "/Desktop/SKDEV/GitHub/FaceAttendance/src/views/IMG/user_profile/" + req.user.id + "_" + req.user.username + ".jpeg";
+      if (fs.existsSync(newpath)) {
+        try {
+          fs.unlinkSync(newpath)
+          //file removed
+        } catch(err) {
+          console.error(err)
+        }
+      }
+      fs.rename(oldpath, newpath, function (err) {
+        if (err) throw err;
+        insertProfileToDB(req, newpath);
+        res.redirect("/profile")
+      });
+    }
+  });
+
+});
+
 app.listen(port, function () {
   console.log(
     "Express server listening on port %d  http://localhost:%d/",
@@ -128,4 +181,17 @@ function checkNotAuthenticated(req, res, next) {
     return res.redirect("/")
   }
   next();
+}
+function insertProfileToDB(req, path) {
+  MongoClient.connect(url, function(err, db) {
+    if (err) throw err;
+    var dbo = db.db("FaceAttendance");
+    var myquery = { id: req.user.id };
+    var newvalues = { $set: {profilepath: path, profileFile: req.user.id + "_" + req.user.username + ".jpeg" } };
+    dbo.collection("users").updateOne(myquery, newvalues, function(err, res) {
+      if (err) throw err;
+      console.log("1 document updated");
+      db.close();
+    });
+  });
 }

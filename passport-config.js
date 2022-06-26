@@ -11,7 +11,7 @@ function initialize(passport) {
     MongoClient.connect(url, function(err, db) {
         if (err) throw err;
         var dbo = db.db("FaceAttendance");
-        var query = { email: email };
+        var query = { email: email };     
         dbo.collection("users").find(query).toArray(async function(err, result) {
             if (err) throw err;
             query = result[0];
@@ -19,8 +19,8 @@ function initialize(passport) {
         
             const user = query;
             console.log(user);
-            if (query.username == null) {
-            return done(null, false, { message: 'No user with that email' })
+            if (query?.username == null) {
+              return done(null, false, { message: 'No user with that email' })
             }
 
             try {

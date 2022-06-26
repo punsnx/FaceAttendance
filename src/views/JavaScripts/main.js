@@ -1,6 +1,3 @@
-var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://localhost:27017/";
-
 console.log("it's Sirisuk");
 
 function mainLoad() {

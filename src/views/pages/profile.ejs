@@ -7,10 +7,8 @@
     <section>
       <nav><%- include('../partials/nav.ejs'); %></nav>
       <div class="containMainBody">
-        
-        
         <div class="containIMG">
-          <canvas id="Profile"></canvas>
+          <img id="Profile" src="/IMG/user_profile/<%= profileFile %>" >
         </div>
         <div class="profileDetails">
           <h1 style="text-align: center">Your Profile</h1>
@@ -19,8 +17,13 @@
           <h1>Class: <%= name.class %>/<%= name.room %></h1>
           <h1>Number: <%= name.no %></h1>
           <h1>studentID: <%= name.studentID %></h1>
-          <form action="/logout" method="POST">
+          <h1>ProfileFile: <%= name.profileFile %></h1>
+          <form action="/logout" method="POST" class="logout">
             <input type="submit" value="Logout" />
+          </form>
+          <form action="/process/uploadprofile" enctype="multipart/form-data" method="post">
+            <input type="file" name="profileIMGuploading" multiple="multiple" required><br>
+            <input type="submit" value="Upload Profile" id="uploadProfileBT"/>
           </form>
         </div>
 

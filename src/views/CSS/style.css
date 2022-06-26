@@ -1,3 +1,53 @@
+/* Add responsiveness - on screens less than 500px, make the navigation links appear on top of each other, instead of next to each other */
+@media screen and (max-width: 500px) {
+  .containNAV {
+    display: none;
+  }
+  .containNAVmobile {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
+  .containNAVmobile a {
+    text-decoration: none;
+    text-align: center;
+    width: 100%;
+    float: left;
+    padding: 30px;
+    background-color: rgb(255, 0, 230);
+    color: white;
+  }
+  .containNAVmobile a:hover { 
+    background-color: rgb(60, 0, 120);
+    cursor: pointer;
+  } 
+}
+@media screen and (min-width: 501px) {
+  .containNAV {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
+  .containNAV a {
+    text-decoration: none;
+    text-align: center;
+    width: 25%;
+    float: left;
+    padding: 30px;
+    background-color: rgb(128, 0, 255);
+    color: white;
+  }
+  .containNAV a:hover { 
+    background-color: rgb(60, 0, 120);
+    cursor: pointer;
+  } 
+  .containNAVmobile {
+    display: none;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -8,41 +58,25 @@ body {
 }
   /* Responsive layout - makes the two columns/boxes stack on top of each other instead of next to each other, on small screens */
 nav {
-  width: 100%;
-  height: 100px;
+  left: 0;
+  right: 0;
+  top: 0;
+  margin: 0 auto;
+  max-width: 100%;
+  overflow: auto;
+  position: fixed;
   background-color: rgb(0, 207, 100);
 }
-.containNAV {
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  display: block;
+.containMainBody {
+  margin-top: 100px;
 }
-.containNAV a {
-  text-decoration: none;
-  text-align: center;
-  width: 24%;
-  padding-top: 25px;
-  padding-bottom: 25px;
-  margin-top: 15px;
-  margin-bottom: auto; 
-  margin-left: 0.5%;
-  border-radius: 25px;
-  display: inline-block;
-  background-color: rgb(255, 114, 7);
-  color: white;
-}
-.containNAV a:hover { 
-  background-color: rgb(255, 219, 87);
-  cursor: pointer;
-} 
-.containIMG canvas {
+.containIMG #Profile {
   background-color: white;
   margin-top: 50px;
   margin-left: auto;
   margin-right: auto;
-  width: 300px;
-  height: 300px;
+  width: 70%;
+  height: auto;
   display: block;
   border: 1px solid black;
   border-radius: 25px;
@@ -144,4 +178,32 @@ nav {
   .showUsers h4,p {
     color: white;
     text-align: center;
+  }
+  .logout input {
+    padding: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 30px;
+    background-color: rgb(255, 59, 59);
+    border-radius: 25px;
+    border: none;
+    color: white;
+  }
+  .logout input:hover {
+    background-color: rgb(107, 23, 23);
+  }
+  #uploadProfileBT {
+    padding: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 20px;
+    background-color: rgb(116, 209, 137);
+    border-radius: 25px;
+    border: none;
+    color: white;
+  }
+  #uploadProfileBT:hover {
+    background-color: rgb(52, 93, 61);
   }
