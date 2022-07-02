@@ -20,20 +20,12 @@
           <h1>Number</h1>
           <h1>ID</h1>
         </div>
-        <div class="showUsers">
-          <h4>Users List</h4>
-          <hr>
-          <% results.map((result)=> { %>
-            <h4>Name : <%=result.firstname%> <%=result.lastname%></h4>
-            <p>Email : <%=result.email%></p>
-            <p>Class : <%=result.class%>/<%=result.room%> No : <%=result.no%></p>
-            <p>StudentID : <%=result.studentID%></p>
-            <p>Password : <%=result.password%></p>
-            <hr>
-          <% }) %>  
-        </div>
+        <form action="/showusers" method="post">
+          <button type="submit">Show All Users</button>
+        </form>
 
       </div>
     </section>
+    <%- include('../partials/footer.ejs'); %>
   </body>
 </html>

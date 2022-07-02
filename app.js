@@ -17,27 +17,16 @@ const formidable = require("formidable");
 const fs = require("fs");
 const authProcess = require("./authentication.js");
 const User = require("./models/user.js");
+const httpStorage = require("./httpStorage.js");
 const initializePassport = require("./passport-config.js");
-const { constants } = require('fs');
-const connectDB = async () => {
-  try {
-    const con = await mongoose.connect(
-      "mongodb+srv://skdev:skdev123456789@skmongocluster.skdn9.mongodb.net/FaceAttendance"
-    );
-    console.log(`MongoDB connected: ${con.connection.host}`);
-  } catch (err) {
-    console.log(err);
-    process.exit(1);
-  }
-};
-connectDB();
+
 initializePassport(
   passport
 //  email => users.find(user => user.email === email),
 //  id => users.find(user => user.id === id)
 )
 var MongoClient = require("mongodb").MongoClient;
-var url = "mongodb://localhost:27017";
+var url = process.env.CON_DB;
 //"mongodb+srv://skdev:skdev123456789@skmongocluster.skdn9.mongodb.net/?retryWrites=true&w=majority";  
 // "mongodb://localhost:27017";
 
@@ -61,21 +50,29 @@ app.use(passport.session())
 app.set("views", "./src/views");
 app.set("view engine", "ejs");
 
+
+//TEST Firebase
+app.get("/storage/user_profile/:path", (req, res) => {
+  httpStorage(req,res);
+});
 //INDEX
 app.get("/", (req, res) => {
-  
+  if (req?.user) {
+    console.log(req.user.name);   
+    res.render("pages/index", { title: "home", name: "welcome " + req.user.username });
+  }else {
+    res.render("pages/index", { title: "home", name: "not login" });
+  }
+
+});
+app.post("/showusers", (req, res) => {
   MongoClient.connect(url, function(err, db) {
     if (err) throw err;
     var dbo = db.db("FaceAttendance");
     dbo.collection("users").find({}).toArray(function(err, result) {
       if (err) throw err;
-      chalk.magenta(console.log(result));
-      if (req?.user) {
-        console.log(req.user.name);   
-        res.render("pages/index", { title: "home", results: result, name: "welcome " + req.user.username });
-      }else {
-        res.render("pages/index", { title: "home", results: result, name: "not login" });
-      }
+      //chalk.magenta(console.log(result));
+      res.render("pages/showusers", {results: result});
       
       db.close();
     });
@@ -134,7 +131,7 @@ app.get("/test", async (req, res) => {
 })
 
 
-app.post('/process/uploadprofile', (req, res) => {
+app.post('/process/uploadprofile', checkAuthenticated,(req, res) => {
   var form = new formidable.IncomingForm();
   form.parse(req, (err, fields, files) => {
     if (err) {
@@ -142,7 +139,9 @@ app.post('/process/uploadprofile', (req, res) => {
     } else {
       //res.json({ files });
       var oldpath = files.profileIMGuploading.filepath;
-      var newpath = process.env.HOME + "/Desktop/SKDEV/GitHub/FaceAttendance/src/views/IMG/user_profile/" + req.user.id + "_" + req.user.username + ".jpeg";
+      var newpath = __dirname + "/src/views/IMG/user_profile/" + req.user.studentID + "_" + req.user.username + ".jpeg";
+      //var newpath = process.env.HOME + "/Desktop/SKDEV/GitHub/FaceAttendance/src/views/IMG/user_profile/" + req.user.studentID + "_" + req.user.username + ".jpeg";
+      console.log(newpath);
       if (fs.existsSync(newpath)) {
         try {
           fs.unlinkSync(newpath)
@@ -153,7 +152,7 @@ app.post('/process/uploadprofile', (req, res) => {
       }
       fs.rename(oldpath, newpath, function (err) {
         if (err) throw err;
-        insertProfileToDB(req, newpath);
+        insertProfileToDB(req);
         res.redirect("/profile")
       });
     }
@@ -182,16 +181,23 @@ function checkNotAuthenticated(req, res, next) {
   }
   next();
 }
-function insertProfileToDB(req, path) {
+function insertProfileToDB(req) {
   MongoClient.connect(url, function(err, db) {
     if (err) throw err;
     var dbo = db.db("FaceAttendance");
     var myquery = { id: req.user.id };
-    var newvalues = { $set: {profilepath: path, profileFile: req.user.id + "_" + req.user.username + ".jpeg" } };
+    var profileName = req.user.studentID + "_" + req.user.username + ".jpeg";
+    var newvalues = { $set: { profileFile: profileName, httpProfilePath: "/storage/user_profile/" + profileName } };
     dbo.collection("users").updateOne(myquery, newvalues, function(err, res) {
       if (err) throw err;
       console.log("1 document updated");
       db.close();
     });
   });
+}
+function sortLastLogin(data) {
+  for (i in data) {
+    console.log(typeof data);
+  }
+  return "SORT DATA LAST LOGIN"
 }

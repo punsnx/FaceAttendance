@@ -1,5 +1,5 @@
 function onloadlogin() {
-    document.getElementById("noAccountSignUp").setAttribute("href", "http://127.0.0.1:8888/auth");
+    document.getElementById("noAccountSignUp").setAttribute("href", "/auth");
     let sessionShowData = sessionStorage.getItem("sessShowData");
     if (sessionShowData == "true") {
         document.getElementById("showdata").innerHTML = sessionShowData;

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>test</title>
+</head>
+<body>
+    <div class="showUsers">
+        <h4>Users List</h4>
+        <hr>
+        <% results.map((result)=> { %>
+          <h4>Name : <%=result.firstname%> <%=result.lastname%></h4>
+          <p>Email : <%=result.email%></p>
+          <p>Class : <%=result.class%>/<%=result.room%> No : <%=result.no%></p>
+          <p>StudentID : <%=result.studentID%></p>
+          <p>Password : <%=result.password%></p>
+          <hr>
+        <% }) %>  
+      </div>
+</body>
+</html>
