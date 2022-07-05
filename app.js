@@ -65,6 +65,9 @@ app.get("/", (req, res) => {
   }
 
 });
+app.get("/vuejs", (req,res) => {
+  res.render("pages/vuejs");
+});
 app.post("/showusers", (req, res) => {
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
