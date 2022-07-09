@@ -4,10 +4,10 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "set DEBUG=app & nodemon app.js;",
-    "debug": "set DEBUG=* & nodemon app.js;",
-    "s": "DEBUG=app nodemon app.js;",
-    "d": "DEBUG=* nodemon app.js;",
+    "winstart": "set DEBUG=app & nodemon app.js;",
+    "windebug": "set DEBUG=* & nodemon app.js;",
+    "start": "DEBUG=app nodemon app.js;",
+    "debug": "DEBUG=* nodemon app.js;",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -43,8 +43,7 @@
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",
     "path": "^0.12.7",
-    "ssh2-sftp-client": "^9.0.1",
-    "vuejs": "^3.0.1"
+    "ssh2-sftp-client": "^9.0.1"
   },
   "nodemonConfig": {
     "restartable": "rs",
