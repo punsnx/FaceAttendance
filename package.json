@@ -6,6 +6,8 @@
   "scripts": {
     "start": "set DEBUG=app & nodemon app.js;",
     "debug": "set DEBUG=* & nodemon app.js;",
+    "s": "DEBUG=app nodemon app.js;",
+    "d": "DEBUG=* nodemon app.js;",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -37,7 +39,7 @@
     "mongodb": "^4.7.0",
     "mongoose": "^6.4.0",
     "morgan": "^1.10.0",
-    "nodemon": "^1.3.3",
+    "nodemon": "^2.0.19",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",
     "path": "^0.12.7",

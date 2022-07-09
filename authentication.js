@@ -16,7 +16,8 @@ function insertUser(req, res, hashedPassword) {
         class: req.body.authClass,
         room: req.body.authRoom,
         no: req.body.authNumber,
-        password: hashedPassword
+        password: hashedPassword,
+        role: "member"
     }; 
     MongoClient.connect(url, function (err, db) {
         if (err) throw err; 
