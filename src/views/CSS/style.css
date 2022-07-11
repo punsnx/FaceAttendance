@@ -191,6 +191,7 @@ nav {
     color: white;
   }
   .logout input:hover {
+    cursor: pointer;
     background-color: rgb(107, 23, 23);
   }
   #uploadProfileBT {
