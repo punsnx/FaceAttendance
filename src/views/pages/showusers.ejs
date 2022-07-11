@@ -12,7 +12,7 @@
       <hr />
       <% results.map((result)=> { %>
       <img
-        src="IMG/user_profile/<%=result.profileFile%>"
+        src="<%=result.profileFile%>"
         style="height: 50px"
       />
       <h4>Name : <%=result.firstname%> <%=result.lastname%></h4>
@@ -20,7 +20,7 @@
       <p>Class : <%=result.class%>/<%=result.room%> No : <%=result.no%></p>
       <p>StudentID : <%=result.studentID%></p>
       <p>Password : <%=result.password%></p>
-      <p>ProfileFile : <%=result.profileFile%></p>
+      <p>ProfileFile : <%=result.profileFile%></p> <a href="<%=result.profileFile%>">IMG</a>
       <p>
         httpProfilePath :
         http://skpcxv.thddns.net:7880<%=result.httpProfilePath%>

@@ -8,7 +8,7 @@
       <nav><%- include('../partials/nav.ejs'); %></nav>
       <div class="containMainBody">
         <div class="containIMG">
-          <img id="Profile" src="/IMG/user_profile/<%= profileFile %>" >
+          <img id="Profile" src="<%= profileFile %>" >
           
         </div>
         <div class="profileDetails">
@@ -25,6 +25,9 @@
           <form action="/process/uploadprofile" enctype="multipart/form-data" method="post">
             <input type="file" name="profileIMGuploading" multiple="multiple" required><br>
             <input type="submit" value="Upload Profile" id="uploadProfileBT"/>
+          </form>
+          <form action="/process/deleteprofile" method="post">
+            <input type="submit" value="Delete Profile" id="deleteProfileBT"/>
           </form>
         </div>
 

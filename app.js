@@ -16,9 +16,17 @@ const bcrypt = require("bcrypt");
 const formidable = require("formidable");
 const fs = require("fs");
 const authProcess = require("./authentication.js");
-const User = require("./models/user.js");
 const httpStorage = require("./httpStorage.js");
 const initializePassport = require("./passport-config.js");
+// The ID of your GCS bucket
+const bucketName = 'skdev-356007.appspot.com';
+// The filename and file path where you want to download the file
+// const destFileName = '/Users/sirisuk/Downloads/47539_punsn.jpeg';
+// Imports the Google Cloud client library
+const {Storage} = require('@google-cloud/storage');
+const { info, error } = require("console");
+// Creates a client
+const storage = new Storage({keyFilename: 'skdev-356007-70b2ea60723d.json'});
 
 initializePassport(
   passport
@@ -50,17 +58,23 @@ app.set("views", "./src/views");
 app.set("view engine", "ejs");
 
 
-//TEST Firebase
-app.get("/storage/user_profile/:path", (req, res) => {
-  httpStorage(req, res);
+//HTTP Storage
+//TEST Google Cloud Storage
+app.get("/storage/user_profile/:path", async (req, res) => {
+  //httpStorage(req, res);
+  await storage.bucket(bucketName).file("IMG/user_profile/" + req.params.path).createReadStream().pipe(res);
+  
+  
+  
 });
+
 //INDEX
 app.get("/", (req, res) => {
   if (req?.user) {
     console.log(req.user.name);
-    res.render("pages/index", { title: "home", name: "welcome " + req.user.username });
+    res.status(200).render("pages/index", { title: "home", name: "welcome " + req.user.username });
   } else {
-    res.render("pages/index", { title: "home", name: "not login" });
+    res.status(200).render("pages/index", { title: "home", name: "not login" });
   }
 
 });
@@ -71,8 +85,20 @@ app.post("/showusers", (req, res) => {
     dbo.collection("users").find({}).toArray(function (err, result) {
       if (err) throw err;
       //chalk.magenta(console.log(result));
-      res.render("pages/showusers", { results: result });
+      try {
+        result.forEach(info => {
+          if (info.profileFile != undefined) {
+            info.profileFile = req.protocol + "://" + req.header('host') + "/storage/user_profile/" + info.profileFile;
+          } else {
+            info.profileFile = "IMG/noimg.jpeg";
+          }
+          
+        });
+        res.render("pages/showusers", { results: result });
 
+      } catch {
+        console.error();
+      }
       db.close();
     });
   });
@@ -113,10 +139,20 @@ app.post("/auth", async (req, res) => {
 });
 //Profile
 app.get("/profile", checkAuthenticated, (req, res) => {
-  res.render("pages/profile", {
-    title: "Profile", name: req.user,
-    profileFile: req.user.profileFile
-  });
+  if (req.user.profileFile != undefined){
+    res.render("pages/profile", {
+      title: "Profile", name: req.user,
+      profileFile: req.protocol + "://" + req.header('host') + "/storage/user_profile/" + req.user.profileFile
+      //profileFile: req.user.profileFile
+    });
+  } else {
+    res.render("pages/profile", {
+      title: "Profile", name: req.user,
+      profileFile: "IMG/noimg.jpeg"
+      //profileFile: req.user.profileFile
+    });
+  }
+
 })
 app.post('/logout', function (req, res, next) {
   req.logout(function (err) {
@@ -125,47 +161,61 @@ app.post('/logout', function (req, res, next) {
   });
 });
 
-app.get("/test", async (req, res) => {
-  const user = await User.findOne({});
-  res.send(user.username)
-})
 
 
 app.post('/process/uploadprofile', checkAuthenticated, (req, res) => {
   var form = new formidable.IncomingForm();
-  form.parse(req, (err, fields, files) => {
+  form.parse(req, async (err, fields, files) => {
     if (err) {
       res.send(err);
     } else {
       //res.json({ files });
       var oldpath = files.profileIMGuploading.filepath;
-      var newpath = __dirname + "/src/views/IMG/user_profile/" + req.user.studentID + "_" + req.user.username + ".jpeg";
-      //var newpath = process.env.HOME + "/Desktop/SKDEV/GitHub/FaceAttendance/src/views/IMG/user_profile/" + req.user.studentID + "_" + req.user.username + ".jpeg";
-      console.log(newpath);
-      if (fs.existsSync(newpath)) {
-        try {
-          fs.unlinkSync(newpath)
-          //file removed
-        } catch (err) {
-          console.error(err)
-        }
-      }
-      fs.rename(oldpath, newpath, function (err) {
-        if (err) throw err;
+      var newpath = "IMG/user_profile/" + req.user.studentID + "_" + req.user.username + ".jpeg";
+      try {
+        await uploadFile(oldpath, newpath);
+        fs.unlinkSync(oldpath);
         insertProfileToDB(req);
+        req.user.profileFile = req.user.studentID + "_" + req.user.username + ".jpeg";
         res.redirect("/profile")
-      });
+        //file removed
+      } catch {
+        console.error();
+      }
     }
   });
+});
+//DELETE PROFILE
+app.post('/process/deleteprofile', checkAuthenticated, (req, res) => {
+  if (req.user.profileFile != undefined) {
+    try {
+      MongoClient.connect(url, function (err, db) {
+        if (err) throw err;
+        var dbo = db.db("FaceAttendance");
+        var myquery = { id: req.user.id };
+        var newvalues = { $set: { profileFile: undefined } };
+        dbo.collection("users").updateOne(myquery, newvalues, function (err, res) {
+          if (err) throw err;
+          console.log("1 document updated");
+          db.close();
+        });
+      });
+      storage.bucket(bucketName).file("IMG/user_profile/" + req.user.profileFile).delete();
+      req.user.profileFile = undefined;
+      res.redirect("/profile")
+    } catch {
+      res.redirect("/profile")
+    }
+  } else {
+    res.redirect("/profile")
+  }
 
 });
 
-app.listen(port, function () {
-  console.log(
-    "Express server listening on port %d  http://localhost:%d/",
-    this.address().port,
-    this.address().port
-  );
+const PORT = port || parseInt(process.env.PORT) || 8080;
+app.listen(PORT, () => {
+  console.log(`App listening on port ${PORT}`);
+  console.log('Press Ctrl+C to quit.');
 });
 
 function checkAuthenticated(req, res, next) {
@@ -186,7 +236,8 @@ function insertProfileToDB(req) {
     var dbo = db.db("FaceAttendance");
     var myquery = { id: req.user.id };
     var profileName = req.user.studentID + "_" + req.user.username + ".jpeg";
-    var newvalues = { $set: { profileFile: profileName, httpProfilePath: "/storage/user_profile/" + profileName } };
+    //, httpProfilePath: "/storage/user_profile/" + profileName
+    var newvalues = { $set: { profileFile: profileName } };
     dbo.collection("users").updateOne(myquery, newvalues, function (err, res) {
       if (err) throw err;
       console.log("1 document updated");
@@ -199,4 +250,11 @@ function sortLastLogin(data) {
     console.log(typeof data);
   }
   return "SORT DATA LAST LOGIN"
+}
+async function uploadFile(uploadFilePath, destFileName) {
+  await storage.bucket(bucketName).upload(uploadFilePath, {
+    destination: destFileName,
+  });
+
+  console.log(`${uploadFilePath} uploaded to ${bucketName}`);
 }

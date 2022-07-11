@@ -3,24 +3,27 @@
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "Sirisuk Tharntham",
   "scripts": {
     "winstart": "set DEBUG=app & nodemon app.js;",
     "windebug": "set DEBUG=* & nodemon app.js;",
-    "start": "DEBUG=app nodemon app.js;",
-    "debug": "DEBUG=* nodemon app.js;",
+    "start": "node app.js;",
+    "mstart": "DEBUG=app nodemon app.js;",
+    "mdebug": "DEBUG=* nodemon app.js;",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/srztmx/FaceAttendance.git"
   },
-  "author": "",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/srztmx/FaceAttendance/issues"
   },
   "homepage": "https://github.com/srztmx/FaceAttendance#readme",
   "dependencies": {
+    "@google-cloud/storage": "^6.2.2",
     "basic-ftp": "^4.6.6",
     "bcrypt": "^5.0.1",
     "chalk": "^4.1.2",
@@ -49,7 +52,7 @@
     "restartable": "rs",
     "delay": 1000,
     "env": {
-      "port": 80
+      "port": 8888
     }
   }
 }

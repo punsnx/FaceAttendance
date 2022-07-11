@@ -61,4 +61,4 @@ function insertLastLogin(user, timestamp) {
   });
 }
 
-module.exports = initialize
+module.exports = initialize;
