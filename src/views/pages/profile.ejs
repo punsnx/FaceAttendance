@@ -12,7 +12,14 @@
           
         </div>
         <div class="profileDetails">
-          <h1 style="text-align: center">Your Profile</h1>
+          <form action="/process/uploadprofile" enctype="multipart/form-data" method="post">
+            <input type="file" name="profileIMGuploading" multiple="multiple" required><br>
+            <input type="submit" value="Upload Profile" id="uploadProfileBT"/>
+          </form>
+          <form action="/process/deleteprofile" method="post">
+            <input type="submit" value="Delete Profile" id="deleteProfileBT"/>
+          </form>
+          <h1 style="text-align: center"><%= name.firstname %>'s' Profile</h1>
           <h1>Username : <%= name.username %></h1>
           <h1>Fullname : <%= name.firstname %> <%= name.lastname %></h1>
           <h1>Class: <%= name.class %>/<%= name.room %></h1>
@@ -22,13 +29,7 @@
           <form action="/logout" method="POST" class="logout">
             <input type="submit" value="Logout" />
           </form>
-          <form action="/process/uploadprofile" enctype="multipart/form-data" method="post">
-            <input type="file" name="profileIMGuploading" multiple="multiple" required><br>
-            <input type="submit" value="Upload Profile" id="uploadProfileBT"/>
-          </form>
-          <form action="/process/deleteprofile" method="post">
-            <input type="submit" value="Delete Profile" id="deleteProfileBT"/>
-          </form>
+
         </div>
 
       </div>
