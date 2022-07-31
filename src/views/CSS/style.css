@@ -1,13 +1,10 @@
 /* Add responsiveness - on screens less than 500px, make the navigation links appear on top of each other, instead of next to each other */
 @media screen and (max-width: 500px) {
   .containNAV {
-    display: none;
+    display: block;
   }
   .containNAVmobile {
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
+    display: none;
   }
   .containNAVmobile a {
     text-decoration: none;
@@ -36,11 +33,12 @@
     width: 25%;
     float: left;
     padding: 30px;
-    background-color: rgb(128, 0, 255);
-    color: white;
+    background-color: rgb(0, 51, 255);
+    color: rgb(255, 255, 255);
   }
   .containNAV a:hover { 
-    background-color: rgb(60, 0, 120);
+    background-color: rgb(0, 115, 255);
+    color: white;
     cursor: pointer;
   } 
   .containNAVmobile {
@@ -54,7 +52,7 @@
   
 body {
   font-family: Arial, Helvetica, sans-serif;
-  background-color: #282a35;
+  background-color: #00bbff;
 }
   /* Responsive layout - makes the two columns/boxes stack on top of each other instead of next to each other, on small screens */
 nav {

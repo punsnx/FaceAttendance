@@ -1,48 +1,266 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Authentication</title>
     <%- include('../partials/head.ejs'); %>
-    <script src="/JS/auth.js"></script>
   </head>
+  <body onload="mainLoad();">
+    <div id="app">
+      <v-app>
+        <v-main>
+          <%- include('../partials/nav.ejs'); %>
+          <div class="mx-auto mt-10">
+            <% if (alertauth != "") { %>
+            <v-alert
+              type="<%=status%>"
+              width="70%"
+              class="mx-auto rounded-xl"
+              >{{ alertText }}</v-alert
+            >
+            <% } %>
+          </div>
+          <div>
+            <v-card
+              class="mx-auto rounded-xl mt-10"
+              width="70%"
+              prepend-icon="mdi-login"
+            >
+              <template v-slot:title> Create Account </template>
+              <v-form
+                ref="form"
+                v-model="valid"
+                lazy-validation
+                action="/auth"
+                method="POST"
+              >
+                <v-container>
+                  <v-row class="mx-auto justify-center">
+                    <!-- EMAIL -->
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        name="authEmail"
+                        :rules="emailRules"
+                        label="E-mail"
+                        required
+                        prepend-inner-icon="mdi-email"
+                        variant="outlined"
+                        clearable
+                        clear-icon="mdi-delete"
+                      ></v-text-field>
+                    </v-col>
+                    <!-- USERNAME -->
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        name="authUsername"
+                        :rules="usernameRules"
+                        label="Username"
+                        required
+                        prepend-inner-icon="mdi-account"
+                        variant="outlined"
+                        clearable
+                        clear-icon="mdi-delete"
+                      ></v-text-field>
+                    </v-col>
+                    <!-- FIRSTNAME -->
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        name="authFname"
+                        :rules="firstnameRules"
+                        label="Firstname"
+                        required
+                        prepend-inner-icon="mdi-rename-box"
+                        variant="outlined"
+                        clearable
+                        clear-icon="mdi-delete"
+                      ></v-text-field>
+                    </v-col>
+                    <!-- LASTNAME -->
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        name="authLname"
+                        :rules="lastnameRules"
+                        label="Lastname"
+                        required
+                        prepend-inner-icon="mdi-rename-box"
+                        variant="outlined"
+                        clearable
+                        clear-icon="mdi-delete"
+                      ></v-text-field>
+                    </v-col>
+                    <!-- CLASS -->
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        name="authClass"
+                        :rules="classRoomNumRules"
+                        :counter="3"
+                        label="Class"
+                        required
+                        prepend-inner-icon="mdi-school"
+                        variant="outlined"
+                        clearable
+                        clear-icon="mdi-delete"
+                      ></v-text-field>
+                    </v-col>
+                    <!-- ROOM -->
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        name="authRoom"
+                        :rules="classRoomNumRules"
+                        :counter="3"
+                        label="Room"
+                        required
+                        prepend-inner-icon="mdi-chair-school"
+                        variant="outlined"
+                        clearable
+                        clear-icon="mdi-delete"
+                      ></v-text-field>
+                    </v-col>
+                    <!-- NUMBER -->
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        name="authNumber"
+                        :rules="classRoomNumRules"
+                        :counter="3"
+                        label="No"
+                        required
+                        prepend-inner-icon="mdi-numeric-0-box-multiple-outline"
+                        variant="outlined"
+                        clearable
+                        clear-icon="mdi-delete"
+                      ></v-text-field>
+                    </v-col>
+                    <!-- STUDENT ID -->
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        name="authStudentID"
+                        :rules="studentIDRules"
+                        label="Student ID"
+                        required
+                        prepend-inner-icon="mdi-card-account-details"
+                        variant="outlined"
+                        clearable
+                        clear-icon="mdi-delete"
+                      ></v-text-field>
+                    </v-col>
+                    <!-- PASSWORD -->
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        name="authPassword"
+                        type="password"
+                        :counter="64"
+                        :rules="passwordRules"
+                        label="Password"
+                        required
+                        prepend-inner-icon="mdi-lock"
+                        variant="outlined"
+                        clearable
+                        clear-icon="mdi-delete"
+                      ></v-text-field>
+                    </v-col>
+                    <!-- CONFIRM PASSWORD -->
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        name="authCFPassword"
+                        type="password"
+                        :counter="64"
+                        :rules="passwordRules"
+                        label="Confirm Password"
+                        required
+                        prepend-inner-icon="mdi-lock"
+                        variant="outlined"
+                        clearable
+                        clear-icon="mdi-delete"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-container>
+                <div class="d-flex justify-center mb-6">
+                  <v-btn
+                    color="black"
+                    class="mr-4"
+                    @click="validate"
+                    type="submit"
+                  >
+                    Create
+                    <v-icon end icon="mdi-checkbox-marked-circle"></v-icon>
+                  </v-btn>
+                  <v-btn @click="gologin" class="mr-4" color="black">
+                    Sign in
+                    <v-icon end icon="mdi-account-plus"></v-icon>
+                  </v-btn>
+                </div>
+              </v-form>
+            </v-card>
+          </div>
+        </v-main>
+      </v-app>
+    </div>
 
-  <body onload="mainLoad(); onloadauth();">
+    <%- include('../partials/footer.ejs'); %>
+    <script>
+      var x;
+      const vuetify = Vuetify.createVuetify();
+      const app = Vue.createApp({
+        data: () => ({
+          valid: false,
+          emailRules: [
+            (v) => !!v || "E-mail is required",
+            (v) => /.+@.+/.test(v) || "E-mail must be valid",
+          ],
+          usernameRules: [
+            (v) => !!v || "Username is required",
+            (v) =>
+              (v && v.length <= 64) ||
+              "Username must be less than 64 characters",
+          ],
+          firstnameRules: [
+            (v) => !!v || "Firstname is required",
+            (v) =>
+              v.length <= 64 || "Firstname must be less than 64 characters",
+          ],
+          lastnameRules: [
+            (v) => !!v || "Lastname is required",
+            (v) => v.length <= 64 || "Lastname must be less than 64 characters",
+          ],
+          classRoomNumRules: [
+            (v) => !!v || "required",
+            (v) => !isNaN(v) || "must be number",
+            (v) => v.length <= 3 || "Lastname must be less than 3 characters",
+          ],
+          studentIDRules: [
+            (v) => !!v || "required",
+            (v) => !isNaN(v) || "must be number",
+          ],
+          passwordRules: [
+            (v) => !!v || "Password is required",
+            (v) =>
+              (v && v.length <= 64) ||
+              "Password must be less than 64 characters",
+          ],
+          cfpassword: "",
+          cfpasswordRules: [
+            (v) => !!v || "Confirm Password is required",
+            (v) =>
+              (v && v.length <= 64) ||
+              "Confirm Password must be less than 64 characters",
+          ],
+          alertText: "",
+          authStatus: "<%=status%>",
+        }),
+        mounted: function () {
+          if (this.authStatus == "success") {
+            this.alertText = "<%=alertauth%>";
+          } else {
+            this.alertText = "<%=alertauth%> already exists";
+          }
+        },
+        methods: {
+          gologin() {
+            window.location.href = "/login";
+          },
+        },
+      });
 
-    <header></header>
-    <section>
-      <nav><%- include('../partials/nav.ejs'); %></nav>
-      <div class="containMainBody">
-        <div class="containAuth">
-          <form name="signupForm" id="signupForm" action="/auth" method="POST"">
-            <h1><%=alertauth%></h1>
-            <label id="authFormTitle">Create your account</label>
-            <label for="authEmail">Enter Email</label>
-            <input type="text" id="authEmail" name="authEmail" placeholder="Email" required/>
-            <label for="authUsername">Enter Username</label>
-            <input type="text" id="authUsername" name="authUsername" placeholder="Username" required/>
-            <label for="authStudentID">Enter StudentID</label>
-            <input type="text" id="authStudentID" name="authStudentID" placeholder="StudentID" required/>
-            <label for="authFname">Enter FirstName</label>
-            <input type="text" id="authFname" name="authFname" placeholder="Firstname" required/>
-            <label for="authLname">Enter Lastname</label>
-            <input type="text" id="authLname" name="authLname" placeholder="Lastname" required/>
-            <label for="authClass">Enter Class</label>
-            <input type="text" id="authClass" name="authClass" placeholder="Class" required/>
-            <label for="authRoom">Enter Room</label>
-            <input type="text" id="authRoom" name="authRoom" placeholder="Room" required/>
-            <label for="authNumber">Enter Number</label>
-            <input type="text" id="authNumber" name="authNumber" placeholder="Number" required/>
-            <label for="authPassword">Enter Password</label>
-            <input type="password" id="authPassword" name="authPassword" placeholder="Password" required/>
-            <label for="authCFPassword">Enter Password Again</label>
-            <input type="password" id="authCFPassword" name="authCFPassword" placeholder="Password" required/>
-            <input type="submit" value="Create Account" id="SubmitAuth" />
-            <label id="haveAccountLoginLabel">Already have an account? </label
-            ><a id="haveAccountLogin" >Sign in</a>
-          </form>
-          <p id="showdataA" style="color: white;"></p>
-        </div>
-      </div>
-    </section>
+      app.use(vuetify).mount("#app");
+    </script>
   </body>
 </html>

@@ -1,9 +1,51 @@
-<div class="containNAV">
+<!-- <div class="containNAV">
     <a id="navbt1"></a>
     <a id="navbt2"></a>
     <a id="navbt3"></a>
     <a id="navbt4"></a>
-</div> 
-<div class="containNAVmobile">
+</div>  -->
+<div>
+  <v-toolbar title="FaceAttendance" color="grey-lighten-3">
+    <v-btn stacked href="/">
+      <v-badge color="success" dot>
+        <v-icon icon="mdi-home"></v-icon>
+      </v-badge>
+      Home
+    </v-btn>
+
+    <v-btn stacked href="/profile">
+      <v-badge color="warning" dot>
+        <v-icon icon="mdi-account"></v-icon>
+      </v-badge>
+
+      Profile
+    </v-btn>
+
+    <v-btn stacked href="/data">
+      <v-badge dot color="error">
+        <v-icon icon="mdi-database-clock"></v-icon>
+      </v-badge>
+
+      Data
+    </v-btn>
+    <% if (title == "login" || title == "authentication" || title ==
+    "forgetpassword") { %>
+    <v-btn stacked href="/login">
+      <v-icon icon="mdi-login"></v-icon>
+
+      Login
+    </v-btn>
+    <% } else { %>
+    <form action="/logout" method="POST">
+      <v-btn stacked type="submit">
+        <v-icon icon="mdi-logout"></v-icon>
+
+        Logout
+      </v-btn>
+    </form>
+    <% } %>
+  </v-toolbar>
+</div>
+<!-- <div class="containNAVmobile">
   <a id="mobilenavBT">#</a>
-</div> 
+</div>  -->

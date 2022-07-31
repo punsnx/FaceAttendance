@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><%- include('../partials/head.ejs'); %></head>
+
+  <body onload="mainLoad();">
+    <header><nav><%- include('../partials/nav.ejs'); %></nav></header>
+    <section class="animate__bounceIn">
+      
+      <div class="containMainBody">
+        <div class="containIMG">
+          <img id="Profile" src="<%= profileFile %>" >
+          
+        </div>
+        <div class="profileDetails">
+          <form action="/process/uploadprofile" enctype="multipart/form-data" method="post">
+            <input type="file" name="profileIMGuploading" multiple="multiple" required><br>
+            <input type="submit" value="Upload Profile" id="uploadProfileBT"/>
+          </form>
+          <form action="/process/deleteprofile" method="post">
+            <input type="submit" value="Delete Profile" id="deleteProfileBT"/>
+          </form>
+          <h1 style="text-align: center"><%= name.firstname %>'s' Profile</h1>
+          <h1>Username : <%= name.username %></h1>
+          <h1>Fullname : <%= name.firstname %> <%= name.lastname %></h1>
+          <h1>Class: <%= name.class %>/<%= name.room %></h1>
+          <h1>Number: <%= name.no %></h1>
+          <h1>studentID: <%= name.studentID %></h1>
+          <h1>ProfileFile: <%= name.profileFile %></h1>
+          <form action="/logout" method="POST" class="logout">
+            <input type="submit" value="Logout" />
+          </form>
+          <form >
+            <input type="submit" value="EDIT" id="deleteProfileBT"/>
+          </form>
+          <form >
+            <input type="submit" value="Delete User" id="deleteProfileBT"/>
+          </form>
+        </div>
+
+      </div>
+    </section>
+  </body>
+</html>

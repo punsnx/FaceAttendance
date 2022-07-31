@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Authentication</title>
+    <%- include('../partials/head.ejs'); %>
+    <script src="/JS/auth.js"></script>
+  </head>
+
+  <body onload="mainLoad(); onloadauth();">
+
+    <header>
+      <nav><%- include('../partials/nav.ejs'); %></nav>
+    </header>
+    <section class="animate__bounceIn">
+      
+      <div class="containMainBody">
+        <div class="containAuth">
+          <form name="signupForm" id="signupForm" action="/auth" method="POST"">
+            <h1><%=alertauth%></h1>
+            <label id="authFormTitle">Create your account</label>
+            <label for="authEmail">Enter Email</label>
+            <input type="text" id="authEmail" name="authEmail" placeholder="Email" required/>
+            <label for="authUsername">Enter Username</label>
+            <input type="text" id="authUsername" name="authUsername" placeholder="Username" required/>
+            <label for="authStudentID">Enter StudentID</label>
+            <input type="text" id="authStudentID" name="authStudentID" placeholder="StudentID" required/>
+            <label for="authFname">Enter FirstName</label>
+            <input type="text" id="authFname" name="authFname" placeholder="Firstname" required/>
+            <label for="authLname">Enter Lastname</label>
+            <input type="text" id="authLname" name="authLname" placeholder="Lastname" required/>
+            <label for="authClass">Enter Class</label>
+            <input type="text" id="authClass" name="authClass" placeholder="Class" required/>
+            <label for="authRoom">Enter Room</label>
+            <input type="text" id="authRoom" name="authRoom" placeholder="Room" required/>
+            <label for="authNumber">Enter Number</label>
+            <input type="text" id="authNumber" name="authNumber" placeholder="Number" required/>
+            <label for="authPassword">Enter Password</label>
+            <input type="password" id="authPassword" name="authPassword" placeholder="Password" required/>
+            <label for="authCFPassword">Enter Password Again</label>
+            <input type="password" id="authCFPassword" name="authCFPassword" placeholder="Password" required/>
+            <input type="submit" value="Create Account" id="SubmitAuth" />
+            <label id="haveAccountLoginLabel">Already have an account? </label
+            ><a id="haveAccountLogin" >Sign in</a>
+          </form>
+          <p id="showdataA" style="color: white;"></p>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

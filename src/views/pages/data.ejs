@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../partials/head.ejs'); %>
+  </head>
+  <body onload="mainLoad();">
+    <div id="app">
+      <v-app>
+        <v-main>
+          <%- include('../partials/nav.ejs'); %>
+          <div>
+            <!-- USER ATTENDANCE DATA -->
+            <div>
+              <v-img
+                width="50%"
+                class="mx-auto mt-10 rounded-xl"
+                src="<%= profileFile %>"
+              >
+              </v-img>
+              <v-card
+                v-show="!showHistory"
+                class="mx-auto mt-10 rounded-xl text-center"
+                color="white"
+                width="80%"
+                title="<%= user.firstname %> <%= user.lastname %>'s Data"
+              >
+                <div class="mx-auto mb-10">
+                  <v-container>
+                    <v-row class="text-start mx-2">
+                      <v-col cols="12" md="6">
+                        <div>
+                          <v-card
+                            class="mx-auto"
+                            width="100%"
+                            variant="outlined"
+                          >
+                            <template v-slot:title>
+                              Weekly & Monthly Reports
+                            </template>
+
+                            <v-card-text class="d-flex justify-center">
+                              <div>
+                                <v-row class="text-start">
+                                  <v-col cols="12" md="6">
+                                    <h1>NO CHART DATA</h1>
+                                    <v-img src="IMG/noimg.jpeg"></v-img
+                                  ></v-col>
+                                  <v-col cols="12" md="6">
+                                    <h1>NO CHART DATA</h1>
+                                    <v-img src="IMG/noimg.jpeg"></v-img
+                                  ></v-col>
+                                </v-row>
+                              </div>
+                            </v-card-text>
+                          </v-card>
+                        </div>
+                      </v-col>
+                      <v-col cols="12" md="6">
+                        <div>
+                          <v-card
+                            class="mx-auto"
+                            width="100%"
+                            variant="outlined"
+                          >
+                            <template v-slot:title> Lastest Reports </template>
+
+                            <v-card-text class="d-flex justify-center">
+                              <div>
+                                <v-row class="text-start">
+                                  <v-col cols="12" md="6">
+                                    <v-row class="text-start">
+                                      <v-col cols="12" md="12">
+                                        <p>
+                                          Fullname : <%=user.firstname%>
+                                          <%=user.lastname%>
+                                        </p>
+                                      </v-col>
+                                      <v-col cols="12" md="12">
+                                        <p>
+                                          Class : <%=user.class%>/<%=user.room%>
+                                          Number : <%=user.no%>
+                                        </p>
+                                      </v-col>
+                                      <v-col cols="12" md="12">
+                                        <p>
+                                          Check Status : มา / สาย / ขาด / ลา
+                                        </p>
+                                      </v-col>
+                                      <v-col cols="12" md="12">
+                                        <p>Timestamp : 11.59 PM</p>
+                                      </v-col>
+                                      <v-col cols="12" md="12">
+                                        <p>Date : 99 DECEMBER 9999</p>
+                                      </v-col>
+                                    </v-row>
+                                  </v-col>
+                                  <v-col cols="12" md="6">
+                                    <h1>NO CHART DATA</h1>
+                                    <v-img src="IMG/noimg.jpeg"></v-img>
+                                  </v-col>
+                                </v-row>
+                              </div>
+                            </v-card-text>
+                          </v-card>
+                        </div>
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </div>
+              </v-card>
+              <div class="mx-auto text-center" v-show="!showHistory">
+                <v-btn
+                  class="mx-auto my-10"
+                  color="warning"
+                  @click="showHistory = !showHistory"
+                >
+                  History
+                </v-btn>
+              </div>
+            </div>
+
+            <!-- HISTORY SECTION -->
+            <div>
+              <v-card
+                class="mx-auto my-10 rounded-xl text-center"
+                color="white"
+                width="80%"
+                title="<%= user.firstname %>'s' History"
+                v-show="showHistory"
+              >
+                <div class="mx-auto text-center my-10">
+                  <!-- USER HISTORY -->
+                  <div></div>
+
+                  <!-- EXIT BUTTON -->
+                  <v-btn
+                    class="mx-auto my-10"
+                    color="red"
+                    @click="showHistory = !showHistory"
+                  >
+                    EXIT
+                  </v-btn>
+                </div>
+              </v-card>
+            </div>
+
+            <div v-show="user.role == 'admin'">
+              <v-form
+                action="/showusers"
+                method="post"
+                class="d-flex justify-center my-10"
+              >
+                <v-btn type="submit">show users</v-btn>
+              </v-form>
+            </div>
+          </div>
+        </v-main>
+      </v-app>
+    </div>
+
+    <%- include('../partials/footer.ejs'); %>
+    <script>
+      const vuetify = Vuetify.createVuetify();
+      const app = Vue.createApp({
+        data() {
+          return {
+            showHistory: false,
+            user: {
+              username: "<%= user.username%>",
+              email: "<%= user.email%>",
+              firstname: "<%= user.firstname%>",
+              lastname: "<%= user.lastname%>",
+              class: "<%= user.class%>",
+              room: "<%= user.room%>",
+              no: "<%= user.no%>",
+              role: "<%= user.role%>",
+              password: "",
+            },
+          };
+        },
+        methods: {
+          // METHODS HERE
+        },
+      });
+
+      app.use(vuetify).mount("#app");
+    </script>
+  </body>
+</html>

@@ -1,32 +1,441 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>test</title>
+    <%- include('../partials/head.ejs'); %>
   </head>
   <body>
-    <div class="showUsers">
-      <h4>Users List</h4>
-      <hr />
-      <% results.map((result)=> { %>
-      <img
-        src="<%=result.profileFile%>"
-        style="height: 50px"
-      />
-      <h4>Name : <%=result.firstname%> <%=result.lastname%></h4>
-      <p>Email : <%=result.email%></p>
-      <p>Class : <%=result.class%>/<%=result.room%> No : <%=result.no%></p>
-      <p>StudentID : <%=result.studentID%></p>
-      <p>Password : <%=result.password%></p>
-      <p>ProfileFile : <%=result.profileFile%></p> <a href="<%=result.profileFile%>">IMG</a>
-      <p>
-        httpProfilePath :
-        http://skpcxv.thddns.net:7880<%=result.httpProfilePath%>
-      </p>
-      <hr />
-      <% }) %>
+    <div id="app">
+      <v-app>
+        <v-main>
+          <%- include('../partials/nav.ejs'); %>
+          <div class="showUsers">
+            <% results.map((result)=> { %>
+            {{
+              addEachUserEditToggle(
+                "<%=result._id%>",
+                "<%=result.username%>",
+                "<%=result.email%>",
+                "<%=result.firstname%>",
+                "<%=result.lastname%>",
+                "<%=result.class%>",
+                "<%=result.room%>",
+                "<%=result.no%>",
+                "<%=result.role%>",
+                "<%=result.password%>"
+              )
+            }}
+
+            <v-card
+              class="mx-auto justify-center rounded-xl pa-4 my-10"
+              flat
+              width="70%"
+            >
+              <!-- SHOW USER PROFILE -->
+              <div
+                class="d-flex justify-space-around mb-6"
+                v-if="usersSettings['<%=result._id%>'].showUser"
+              >
+                <v-container>
+                  <v-row class="mx-auto justify-center">
+                    <v-col cols="12" md="8">
+                      <div>
+                        <p class="font-weight-black text-h5">
+                          Name : <%=result.firstname%> <%=result.lastname%>
+                        </p>
+                        <div class="ml-10">
+                          <p>_ID : <%=result._id%></p>
+                          <p>Username : <%=result.username%></p>
+                          <p>Email : <%=result.email%></p>
+                          <p>
+                            Class : <%=result.class%>/<%=result.room%> No :
+                            <%=result.no%>
+                          </p>
+                          <p>StudentID : <%=result.studentID%></p>
+                          <p>Password : <%=result.password%></p>
+                          <p>ProfileFile : <%=result.profileFile%></p>
+                          <p>Role : <%=result.role%></p>
+                        </div>
+                      </div>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <v-img
+                        width="50%"
+                        class="mx-auto rounded"
+                        src="<%=result.profileFile%>"
+                      >
+                      </v-img>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </div>
+              <!-- EDITOR SECTION -->
+              <div
+                class="d-flex justify-space-around mb-6"
+                v-if="!usersSettings['<%=result._id%>'].showUser"
+              >
+                <div class="mx-auto text-center mt-2 mb-10">
+                  <p class="font-weight-black text-h5">EDITOR</p>
+                  <!-- UPLOAD PROFILE -->
+                  <v-container>
+                    <v-row class="mx-auto justify-center">
+                      <v-col cols="12" md="6">
+                        <div>
+                          <v-img
+                            width="70%"
+                            class="mx-auto rounded"
+                            src="<%=result.profileFile%>"
+                          >
+                          </v-img>
+                        </div>
+                      </v-col>
+                      <v-col cols="12" md="6">
+                        <form
+                          class="mx-16"
+                          action="/process/showusers/uploadprofile/<%=result.id%>/<%=result.studentID%>"
+                          enctype="multipart/form-data"
+                          method="post"
+                        >
+                          <div class="d-flex justify-center">
+                            <v-file-input
+                              label="Profile input"
+                              :rules="ImgInputRules"
+                              accept="image/png, image/jpeg"
+                              placeholder="Pick an avatar"
+                              name="profileIMGuploading"
+                              multiple="multiple"
+                              required
+                              prepend-icon="mdi-camera"
+                            ></v-file-input>
+                            <v-btn
+                              class="mx-auto mb-10 ml-10 mt-2"
+                              color="success"
+                              icon
+                              type="submit"
+                            >
+                              <v-icon>mdi-cloud-upload</v-icon>
+                              <!-- upload profile -->
+                            </v-btn>
+                          </div>
+                        </form>
+                        <!-- DELETE PROFILE -->
+                        <form
+                          action="/process/showusers/deleteprofile/<%=result.id%>/<%=result.studentID%>"
+                          method="post"
+                        >
+                          <v-btn
+                            class="mx-auto mr-10"
+                            color="red"
+                            type="submit"
+                          >
+                            DELETE PROFILE
+                            <v-icon end icon="mdi-delete"></v-icon>
+                          </v-btn>
+                        </form>
+                      </v-col>
+                    </v-row>
+                  </v-container>
+
+                  <!-- EDIT PERSONAL -->
+                  <div>
+                    <v-form
+                      class="mb-6"
+                      v-model="valid"
+                      action="/process/showusers/editEachProfileDetails/<%=result.id%>/<%=result.studentID%>/"
+                      method="post"
+                    >
+                      <v-container>
+                        <v-row class="mx-auto justify-center">
+                          <!-- EMAIL -->
+                          <v-col cols="12" md="6">
+                            <v-text-field
+                              name="editProfileEmail"
+                              v-model="usersSettings['<%=result._id%>'].user.email"
+                              :rules="emailRules"
+                              label="E-mail"
+                              required
+                              prepend-inner-icon="mdi-email"
+                              variant="outlined"
+                              clearable
+                              clear-icon="mdi-delete"
+                            ></v-text-field>
+                          </v-col>
+                          <!-- USERNAME -->
+                          <v-col cols="12" md="6">
+                            <v-text-field
+                              name="editProfileUsername"
+                              v-model="usersSettings['<%=result._id%>'].user.username"
+                              :rules="usernameRules"
+                              label="Username"
+                              required
+                              prepend-inner-icon="mdi-account"
+                              variant="outlined"
+                              clearable
+                              clear-icon="mdi-delete"
+                            ></v-text-field>
+                          </v-col>
+                          <!-- FIRSTNAME -->
+                          <v-col cols="12" md="6">
+                            <v-text-field
+                              name="editProfileFirstname"
+                              v-model="usersSettings['<%=result._id%>'].user.firstname"
+                              :rules="firstnameRules"
+                              label="Firstname"
+                              required
+                              prepend-inner-icon="mdi-rename-box"
+                              variant="outlined"
+                              clearable
+                              clear-icon="mdi-delete"
+                            ></v-text-field>
+                          </v-col>
+                          <!-- LASTNAME -->
+                          <v-col cols="12" md="6">
+                            <v-text-field
+                              name="editProfileLastname"
+                              v-model="usersSettings['<%=result._id%>'].user.lastname"
+                              :rules="lastnameRules"
+                              label="Lastname"
+                              required
+                              prepend-inner-icon="mdi-rename-box"
+                              variant="outlined"
+                              clearable
+                              clear-icon="mdi-delete"
+                            ></v-text-field>
+                          </v-col>
+                          <!-- CLASS -->
+                          <v-col cols="12" md="6">
+                            <v-text-field
+                              name="editProfileClass"
+                              v-model="usersSettings['<%=result._id%>'].user.class"
+                              :rules="classRoomNumRules"
+                              label="Class"
+                              required
+                              prepend-inner-icon="mdi-school"
+                              variant="outlined"
+                              clearable
+                              clear-icon="mdi-delete"
+                            ></v-text-field>
+                          </v-col>
+                          <!-- ROOM -->
+                          <v-col cols="12" md="6">
+                            <v-text-field
+                              name="editProfileRoom"
+                              v-model="usersSettings['<%=result._id%>'].user.room"
+                              :rules="classRoomNumRules"
+                              label="Room"
+                              required
+                              prepend-inner-icon="mdi-chair-school"
+                              variant="outlined"
+                              clearable
+                              clear-icon="mdi-delete"
+                            ></v-text-field>
+                          </v-col>
+                          <!-- NUMBER -->
+                          <v-col cols="12" md="6">
+                            <v-text-field
+                              name="editProfileNo"
+                              v-model="usersSettings['<%=result._id%>'].user.no"
+                              :rules="classRoomNumRules"
+                              label="No"
+                              required
+                              prepend-inner-icon="mdi-numeric-0-box-multiple-outline"
+                              variant="outlined"
+                              clearable
+                              clear-icon="mdi-delete"
+                            ></v-text-field>
+                          </v-col>
+                          <!-- EDIT ROLE -->
+                          <v-col cols="12" md="6">
+                            <v-text-field
+                              name="editProfileRole"
+                              v-model="usersSettings['<%=result._id%>'].user.role"
+                              :rules="roleRules"
+                              label="Role"
+                              required
+                              prepend-inner-icon="mdi-numeric-0-box-multiple-outline"
+                              variant="outlined"
+                              clearable
+                              clear-icon="mdi-delete"
+                            ></v-text-field>
+                          </v-col>
+                          <!-- PASSWORD -->
+                          <v-col cols="12" md="6">
+                            <v-text-field
+                              name="editProfilePassword"
+                              :append-icon="usersSettings['<%=result._id%>'].showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                              :type="usersSettings['<%=result._id%>'].showPassword ? 'text' : 'password'"
+                              @click:append="usersSettings['<%=result._id%>'].showPassword = !usersSettings['<%=result._id%>'].showPassword"
+                              v-model="usersSettings['<%=result._id%>'].user.password"
+                              :counter="64"
+                              :rules="passwordRules"
+                              label="Password"
+                              required
+                              prepend-inner-icon="mdi-lock"
+                              variant="outlined"
+                              clearable
+                              clear-icon="mdi-delete"
+                            ></v-text-field>
+                          </v-col>
+                          <!-- CONFIRM PASSWORD -->
+                          <v-col cols="12" md="6">
+                            <v-text-field
+                              name="editProfileCFPassword"
+                              :append-icon="usersSettings['<%=result._id%>'].showCFPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                              :type="usersSettings['<%=result._id%>'].showCFPassword ? 'text' : 'password'"
+                              @click:append="usersSettings['<%=result._id%>'].showCFPassword = !usersSettings['<%=result._id%>'].showCFPassword"
+                              v-model="usersSettings['<%=result._id%>'].user.cfpassword"
+                              :counter="64"
+                              :rules="cfpasswordRules"
+                              label="Confirm Password"
+                              required
+                              prepend-inner-icon="mdi-lock"
+                              variant="outlined"
+                              clearable
+                              clear-icon="mdi-delete"
+                            ></v-text-field>
+                          </v-col>
+                          <!-- SUBMIT BUTTON -->
+                          <v-col cols="12" md="6">
+                            <v-btn
+                              class="mx-auto mt-2"
+                              width="100%"
+                              color="success"
+                              type="submit"
+                            >
+                              submit
+                            </v-btn>
+                          </v-col>
+                        </v-row>
+                      </v-container>
+                    </v-form>
+                  </div>
+                </div>
+                <!-- END FORM -->
+              </div>
+              <div class="d-flex justify-start ml-10 mb-2">
+                <v-btn
+                  href="<%=result.profileFile%>"
+                  color="success"
+                  width="10%"
+                  class="mr-6"
+                >
+                  Image
+                </v-btn>
+                <v-btn
+                  color="warning"
+                  width="10%"
+                  class="mr-6"
+                  @click="toggleEdit('<%=result._id%>')"
+                >
+                  Edit
+                </v-btn>
+                <v-btn color="red" width="10%"> Delete </v-btn>
+              </div>
+            </v-card>
+
+            <% }) %>
+          </div>
+        </v-main>
+      </v-app>
     </div>
+    <%- include('../partials/footer.ejs'); %>
+    <script>
+      var x;
+      const vuetify = Vuetify.createVuetify();
+      const app = Vue.createApp({
+        data: () => ({
+          valid: false,
+          emailRules: [
+            (v) => !!v || "E-mail is required",
+            (v) => /.+@.+/.test(v) || "E-mail must be valid",
+          ],
+          usernameRules: [
+            (v) => !!v || "Username is required",
+            (v) =>
+              (v && v.length <= 64) ||
+              "Username must be less than 64 characters",
+          ],
+          firstnameRules: [
+            (v) => !!v || "Firstname is required",
+            (v) =>
+              v.length <= 64 || "Firstname must be less than 64 characters",
+          ],
+          lastnameRules: [
+            (v) => !!v || "Lastname is required",
+            (v) => v.length <= 64 || "Lastname must be less than 64 characters",
+          ],
+          classRoomNumRules: [
+            (v) => !!v || "required",
+            (v) => !isNaN(v) || "must be number",
+          ],
+          passwordRules: [
+            (v) => !!v || "Password is required",
+            (v) =>
+              (v && v.length <= 64) ||
+              "Password must be less than 64 characters",
+          ],
+          cfpasswordRules: [
+            (v) => !!v || "Confirm Password is required",
+            (v) =>
+              (v && v.length <= 64) ||
+              "Confirm Password must be less than 64 characters",
+          ],
+          roleRules: [
+            (v) => !!v || "Role is required",
+            (v) =>
+              (v && v.length <= 64) || "Role must be less than 64 characters",
+          ],
+          ImgInputRules: [
+            (value) => {
+              return (
+                !value ||
+                !value.length ||
+                value[0].size < 2000000 ||
+                "Avatar size should be less than 2 MB!"
+              );
+            },
+          ],
+          usersSettings: {},
+        }),
+        methods: {
+          addEachUserEditToggle(
+            _id,
+            username,
+            email,
+            firstname,
+            lastname,
+            studentClass,
+            room,
+            number,
+            role,
+            password
+          ) {
+            this.usersSettings[_id] = {
+              showUser: true,
+              showPassword: false,
+              showCFPassword: false,
+              user: {
+                username: username,
+                email: email,
+                firstname: firstname,
+                lastname: lastname,
+                class: studentClass,
+                room: room,
+                no: number,
+                role: role,
+                password: password,
+                cfpassword: password,
+              },
+            };
+          },
+          toggleEdit(idData) {
+            this.usersSettings[idData].showUser =
+              !this.usersSettings[idData].showUser;
+          },
+          // METHODS HERE
+        },
+      });
+
+      app.use(vuetify).mount("#app");
+    </script>
   </body>
 </html>

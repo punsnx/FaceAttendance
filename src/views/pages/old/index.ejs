@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><%- include('../partials/head.ejs'); %></head>
+
+  <body onload="mainLoad();" >
+    <header><nav><%- include('../partials/nav.ejs'); %></nav></header>
+    <section>
+      
+      <div class="containMainBody">
+        <h1 style="color:white"><%= name %></h1>
+        
+        
+        <div class="containIMG">
+          <canvas id="Profile"></canvas>
+        </div>
+        <div class="profileDetails">
+          <h1 style="text-align: center">LAST CHECK</h1>
+          <h1>Fullname</h1>
+          <h1>Class</h1>
+          <h1>Number</h1>
+          <h1>ID</h1>
+        </div>
+        <form action="/showusers" method="post">
+          <button type="submit">Show All Users</button>
+        </form>
+
+      </div>
+      <v-btn
+      flat
+      color="secondary"
+    >
+    </section>
+    <%- include('../partials/footer.ejs'); %>
+  </body>
+</html>
