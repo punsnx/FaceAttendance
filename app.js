@@ -5,6 +5,7 @@ if (process.env.NODE_ENV !== "production") {
 const port = process.env.port;
 const express = require("express");
 const https = require("https");
+const http = require("http");
 const app = express();
 const debug = require("debug");
 const chalk = require("chalk");
@@ -20,7 +21,6 @@ const fs = require("fs");
 const authProcess = require("./authentication.js");
 const httpStorage = require("./httpStorage.js");
 const initializePassport = require("./passport-config.js");
-const sharp = require("sharp");
 const googleCloud = require("./googleCloud");
 const editProfileProcess = require("./editProfileProcess.js");
 const mailServer = require("./mailServer");
@@ -388,25 +388,23 @@ app.post(
     res.redirect(307, "/showusers");
   }
 );
-const PORT = 80 || port || parseInt(process.env.PORT) || 8080;
-// https
-//   .createServer(
-//     // Provide the private and public key to the server by reading each
-//     // file's content with the readFileSync() method.
-//     {
-//       key: fs.readFileSync("privatekey.pem"),
-//       cert: fs.readFileSync("cert.pem"),
-//     },
-//     app
-//   )
-//   .listen(PORT, () => {
-//     console.log(`App listening on port ${PORT}`);
-//     console.log("Press Ctrl+C to quit.");
-//   });
-app.listen(PORT, () => {
+const PORT = port || parseInt(process.env.PORT) || 8080;
+http.createServer(app).listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
   console.log("Press Ctrl+C to quit.");
 });
+https
+  .createServer(
+    // Provide the private and public key to the server by reading each
+    // file's content with the readFileSync() method.
+    {
+      key: fs.readFileSync("key.pem"),
+      cert: fs.readFileSync("cert.pem"),
+    },
+    app
+  )
+  .listen(443, () => {});
+
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
