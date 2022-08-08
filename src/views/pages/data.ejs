@@ -130,7 +130,44 @@
               >
                 <div class="mx-auto text-center my-10">
                   <!-- USER HISTORY -->
-                  <div></div>
+                  <div>
+                    <v-table theme="dark">
+                      <thead>
+                        <tr>
+                          <th class="text-left">Name</th>
+                          <th class="text-left">Calories</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>sfsdf</td>
+                          <td>sefsf</td>
+                        </tr>
+                      </tbody>
+                    </v-table>
+                    <!-- TEST MENU  -->
+                    <h1>{{ selectClass }}</h1>
+                    <h1>{{ selectRoom }}</h1>
+                    <v-select
+                      v-model="selectClass"
+                      :items="classItems"
+                      item-title="key"
+                      item-value="value"
+                      label="Class"
+                      return-object
+                    ></v-select>
+                    <v-select
+                      v-model="selectRoom"
+                      :items="roomItems"
+                      item-title="key"
+                      item-value="value"
+                      label="Room"
+                      return-object
+                    ></v-select>
+                    <v-btn class="mx-auto my-10" color="success">
+                      SEARCH
+                    </v-btn>
+                  </div>
 
                   <!-- EXIT BUTTON -->
                   <v-btn
@@ -164,6 +201,10 @@
       const app = Vue.createApp({
         data() {
           return {
+            selectClass: "CLASS",
+            selectRoom: "ROOM",
+            classItems: [],
+            roomItems: [],
             showHistory: false,
             user: {
               username: "<%= user.username%>",
@@ -178,8 +219,21 @@
             },
           };
         },
+        mounted: function () {
+          //method1 will execute at pageload
+          this.getClassItems();
+        },
         methods: {
-          // METHODS HERE
+          getClassItems() {
+            fetch("/process/get/classitems", { method: "POST" })
+              .then((res) => res.json())
+              .then((datares) => {
+                this.classItems = datares.classitems;
+              })
+              .catch((err) => {
+                console.error("Error: ", err);
+              });
+          },
         },
       });
 

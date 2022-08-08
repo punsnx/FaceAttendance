@@ -1,6 +1,9 @@
 const MongoClient = require("mongodb").MongoClient;
 const url = process.env.CON_DB;
-
+const client = new MongoClient(url);
+const database = client.db("FaceAttendance");
+const users = database.collection("users");
+const lastLogin = database.collection("LastLogin");
 exports.computeLastLogin = async (req, res) => {
   const query = {};
   const options = {
@@ -53,4 +56,29 @@ exports.computeIndex = async (req, res) => {
         db.close();
       });
   });
+};
+
+exports.computeUsersClassCount = async (req, res) => {
+  const query = {};
+  const options = {
+    sort: { sort: 1 },
+    projection: { _id: 0, class: 1 },
+  };
+  const cursor = users.find(query, options);
+  const result = await cursor.toArray();
+  var r = [];
+  for (var i = 0; i < result.length; i++) {
+    r.push(result[i].class);
+  }
+  const counts = {};
+  r.forEach((x) => {
+    counts[x] = (counts[x] || 0) + 1;
+  });
+  var items = [];
+  for (x in counts) {
+    items.push({ key: x, value: x, count: counts[x] });
+  }
+
+  console.log(counts, items);
+  res.send({ classitems: items });
 };
