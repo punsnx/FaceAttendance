@@ -321,6 +321,7 @@ app.post(
     });
   }
 );
+
 //DELETE PROFILE
 app.post("/process/deleteprofile", checkAuthenticated, (req, res) => {
   if (req.user.profileFile != undefined) {
@@ -391,6 +392,14 @@ app.post(
 app.post("/process/get/classitems", checkAuthenticated, async (req, res) => {
   dataCompute.computeUsersClassCount(req, res);
 });
+//data compute list users form filter
+app.post(
+  "/process/get/datahistory/studentlist/:class/:room",
+  checkAuthenticated,
+  (req, res) => {
+    dataCompute.computeDataHistoryStudentList(req, res);
+  }
+);
 const PORT = port || parseInt(process.env.PORT) || 8080;
 http.createServer(app).listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

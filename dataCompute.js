@@ -1,3 +1,5 @@
+const resData = require("./httpStorage");
+
 const MongoClient = require("mongodb").MongoClient;
 const url = process.env.CON_DB;
 const client = new MongoClient(url);
@@ -59,6 +61,7 @@ exports.computeIndex = async (req, res) => {
 };
 
 exports.computeUsersClassCount = async (req, res) => {
+  // CLASS
   const query = {};
   const options = {
     sort: { sort: 1 },
@@ -66,19 +69,84 @@ exports.computeUsersClassCount = async (req, res) => {
   };
   const cursor = users.find(query, options);
   const result = await cursor.toArray();
-  var r = [];
+  var classArr = [];
   for (var i = 0; i < result.length; i++) {
-    r.push(result[i].class);
+    classArr.push(result[i].class);
   }
   const counts = {};
-  r.forEach((x) => {
+  classArr.forEach((x) => {
     counts[x] = (counts[x] || 0) + 1;
   });
   var items = [];
+  //ROOM
+  var cursorRoom;
+  var resultRoom;
+  var roomArr = [];
+  var countsRoom;
   for (x in counts) {
-    items.push({ key: x, value: x, count: counts[x] });
+    cursorRoom = users.find(
+      { class: x },
+      {
+        sort: { sort: 1 },
+        projection: { _id: 0, room: 1 },
+      }
+    );
+    resultRoom = await cursorRoom.toArray();
+    for (var i = 0; i < resultRoom.length; i++) {
+      roomArr.push(resultRoom[i].room);
+    }
+    countsRoom = {};
+    roomArr.forEach((x) => {
+      countsRoom[x] = (countsRoom[x] || 0) + 1;
+    });
+    //ITEMS
+    items.push({ class: x, room: countsRoom });
   }
 
   console.log(counts, items);
   res.send({ classitems: items });
+};
+exports.computeDataHistoryStudentList = async (req, res) => {
+  console.log(
+    "================================================================"
+  );
+  console.log(req.params.class, req.params.room);
+  const query = {
+    $and: [{ class: req.params.class }, { room: req.params.room }],
+  };
+  const options = {
+    sort: { no: 1 },
+    projection: {
+      _id: 0,
+      name: 1,
+      firstname: 1,
+      lastname: 1,
+      studentID: 1,
+      class: 1,
+      room: 1,
+      no: 1,
+      profileFile: 1,
+    },
+  };
+
+  const cursor = users.find(query, options);
+  var result = await cursor.toArray();
+  try {
+    result.forEach((info) => {
+      if (info.profileFile != undefined) {
+        info.profileFile =
+          req.protocol +
+          "://" +
+          req.header("host") +
+          "/storage/user_profile/" +
+          info.profileFile;
+      } else {
+        info.profileFile = "IMG/noimg.jpeg";
+      }
+    });
+  } catch {
+    console.error();
+  }
+  console.log(result);
+  res.send({ studentList: result });
 };

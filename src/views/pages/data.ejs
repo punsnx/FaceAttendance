@@ -146,38 +146,108 @@
                       </tbody>
                     </v-table>
                     <!-- TEST MENU  -->
-                    <h1>{{ selectClass }}</h1>
-                    <h1>{{ selectRoom }}</h1>
-                    <v-select
-                      v-model="selectClass"
-                      :items="classItems"
-                      item-title="key"
-                      item-value="value"
-                      label="Class"
-                      return-object
-                    ></v-select>
-                    <v-select
-                      v-model="selectRoom"
-                      :items="roomItems"
-                      item-title="key"
-                      item-value="value"
-                      label="Room"
-                      return-object
-                    ></v-select>
-                    <v-btn class="mx-auto my-10" color="success">
-                      SEARCH
-                    </v-btn>
+                    <h1>SEL CLASS = {{ selectClass }}</h1>
+                    <hr />
+                    <h1>SEL ROOM = {{ selectRoom }}</h1>
+                    <hr />
+                    <v-container>
+                      <v-row class="mx-auto justify-center">
+                        <v-col cols="12" md="5">
+                          <v-select
+                            name="selectClassInput"
+                            v-model="selectClass"
+                            :items="classItems"
+                            item-title="class"
+                            item-value="class"
+                            label="Class"
+                            return-object
+                            @update:model-value="computeRoomItem"
+                          ></v-select>
+                        </v-col>
+                        <v-col cols="12" md="5" v-if="selectClass != ''">
+                          <v-select
+                            name="selectRoomInput"
+                            v-model="selectRoom"
+                            :items="roomItems"
+                            item-title="room"
+                            item-value="room"
+                            label="Room"
+                            return-object
+                          ></v-select>
+                        </v-col>
+                        <v-col cols="12" md="2" v-if="selectRoom != ''">
+                          <v-btn
+                            
+                            @click="actionSubmit()"
+                            class="mx-auto mt-2"
+                            color="success"
+                          >
+                            SEARCH
+                          </v-btn>
+
+                        </v-col>
+                      </v-row>
+                    </v-container>
                   </div>
 
                   <!-- EXIT BUTTON -->
                   <v-btn
-                    class="mx-auto my-10"
+                    v-if="searchStudentList == ''"
+                    class="mx-auto my-6"
                     color="red"
                     @click="showHistory = !showHistory"
                   >
                     EXIT
                   </v-btn>
                 </div>
+                  <!-- SHOW USER PROFILE -->
+                <div
+                  class="d-flex justify-space-around"
+                  v-if="searchStudentList != '' && showHistory == true"
+                  v-for="student in searchStudentList"
+                >
+                  <v-card
+                    class="mx-auto my-2 rounded-xl text-center"
+                    width="80%"
+                    variant="outlined"
+                  >
+                    <v-container>
+                      <v-row class="mx-auto justify-center">
+                        <v-col cols="12" md="8">
+                          <div class="d-flex justify-start">
+
+                            <div class="ml-10">
+                              <p class="font-weight-black text-h5">
+                                Name : {{ student.name }}
+                              </p>
+                              <p>
+                                Class : {{ student.class }}/{{ student.room }} No :
+                                {{ student.no }}
+                              </p>
+                              <p>StudentID : {{ student.studentID }}</p>
+                            </div>
+                          </div>
+                        </v-col>
+                        <v-col cols="12" md="4">
+                          <v-img
+                            width="50%"
+                            class="mx-auto rounded"
+                            v-bind:src="`${student.profileFile}`"
+                          >
+                          </v-img>
+                      </v-row>
+                    </v-container>
+                  </v-card>
+                </div>
+                  <!-- EXIT BUTTON -->
+                  <v-btn
+                    v-if="searchStudentList != ''"
+                    class="mx-auto my-6"
+                    color="red"
+                    @click="showHistory = !showHistory"
+                  >
+                    EXIT
+                  </v-btn>
               </v-card>
             </div>
 
@@ -187,9 +257,10 @@
                 method="post"
                 class="d-flex justify-center my-10"
               >
-                <v-btn type="submit">show users</v-btn>
+                <v-btn type="submit">admin users</v-btn>
               </v-form>
             </div>
+
           </div>
         </v-main>
       </v-app>
@@ -201,10 +272,11 @@
       const app = Vue.createApp({
         data() {
           return {
-            selectClass: "CLASS",
-            selectRoom: "ROOM",
+            selectClass: "",
+            selectRoom: "",
             classItems: [],
             roomItems: [],
+            searchStudentList: "",
             showHistory: false,
             user: {
               username: "<%= user.username%>",
@@ -229,6 +301,25 @@
               .then((res) => res.json())
               .then((datares) => {
                 this.classItems = datares.classitems;
+              })
+              .catch((err) => {
+                console.error("Error: ", err);
+              });
+          },
+          computeRoomItem() {
+            this.roomItems = [];
+            if (this.selectClass != "") {
+              for (x in this.selectClass.room) {
+                this.roomItems.push({ room: x });
+              }
+            }
+          },
+          actionSubmit() {
+            const urlf = `/process/get/datahistory/studentlist/${this.selectClass.class}/${this.selectRoom.room}`;
+            fetch(urlf, { method: "POST" })
+              .then((res) => res.json())
+              .then((datares) => {
+                this.searchStudentList = datares.studentList;
               })
               .catch((err) => {
                 console.error("Error: ", err);
