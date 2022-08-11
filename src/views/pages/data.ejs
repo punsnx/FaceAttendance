@@ -130,26 +130,26 @@
               >
                 <div class="mx-auto text-center my-10">
                   <!-- USER HISTORY -->
+                  <v-table theme="dark">
+                    <thead>
+                      <tr>
+                        <th class="text-left">Name</th>
+                        <th class="text-left">Calories</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>sfsdf</td>
+                        <td>sefsf</td>
+                      </tr>
+                    </tbody>
+                  </v-table>
+                  <!-- TEST MENU  -->
+                  <h1>SEL CLASS = {{ selectClass }}</h1>
+                  <hr />
+                  <h1>SEL ROOM = {{ selectRoom }}</h1>
+                  <hr />
                   <div>
-                    <v-table theme="dark">
-                      <thead>
-                        <tr>
-                          <th class="text-left">Name</th>
-                          <th class="text-left">Calories</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>sfsdf</td>
-                          <td>sefsf</td>
-                        </tr>
-                      </tbody>
-                    </v-table>
-                    <!-- TEST MENU  -->
-                    <h1>SEL CLASS = {{ selectClass }}</h1>
-                    <hr />
-                    <h1>SEL ROOM = {{ selectRoom }}</h1>
-                    <hr />
                     <v-container>
                       <v-row class="mx-auto justify-center">
                         <v-col cols="12" md="5">
@@ -175,7 +175,8 @@
                             return-object
                           ></v-select>
                         </v-col>
-                        <v-col cols="12" md="2" v-if="selectRoom != ''">
+                        <!-- SEARCH BUTTON -->
+                        <v-col cols="12" md="1" v-if="selectRoom != ''">
                           <v-btn
                             
                             @click="actionSubmit()"
@@ -183,6 +184,18 @@
                             color="success"
                           >
                             SEARCH
+                          </v-btn>
+
+                        </v-col>
+                        <!-- CLEAR BUTTON -->
+                        <v-col cols="12" md="1" v-if="selectRoom != ''">
+                          <v-btn
+                            
+                            @click="clearFilter()"
+                            class="mx-auto mt-2"
+                            color="red"
+                          >
+                          CLEAR
                           </v-btn>
 
                         </v-col>
@@ -324,6 +337,12 @@
               .catch((err) => {
                 console.error("Error: ", err);
               });
+          },
+          clearFilter() {
+            this.selectClass = ""
+            this.selectRoom = ""
+            this.roomItems = []
+            this.searchStudentList = ""
           },
         },
       });
