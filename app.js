@@ -375,7 +375,7 @@ app.post(
         } finally {
           storage
             .bucket(bucketName)
-            .file("IMG/user_profile/" + req.user.profileFile)
+            .file("IMG/user_profile/" + req.params.studentID + ".jpeg")
             .delete();
           if (req.params.id == req.user.id) {
             req.user.profileFile = undefined;
@@ -394,12 +394,18 @@ app.post("/process/get/classitems", checkAuthenticated, async (req, res) => {
 });
 //data compute list users form filter
 app.post(
-  "/process/get/datahistory/studentlist/:class/:room",
+  "/process/get/datahistory/studentlist/:class/:room/:dateHistory",
   checkAuthenticated,
   (req, res) => {
     dataCompute.computeDataHistoryStudentList(req, res);
   }
 );
+
+//testReactMe API
+app.get("/api", (req, res) => {
+  res.json({ message: "Hello from Express!" });
+});
+
 const PORT = port || parseInt(process.env.PORT) || 8080;
 http.createServer(app).listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

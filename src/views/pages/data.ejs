@@ -43,12 +43,22 @@
                                 <v-row class="text-start">
                                   <v-col cols="12" md="6">
                                     <h1>NO CHART DATA</h1>
-                                    <v-img src="IMG/noimg.jpeg"></v-img
-                                  ></v-col>
+                                    <v-progress-circular
+                                      :size="50"
+                                      color="green"
+                                      indeterminate
+                                    ></v-progress-circular>
+                                    <!-- <v-img src="IMG/noimg.jpeg"></v-img -->
+                                  </v-col>
                                   <v-col cols="12" md="6">
                                     <h1>NO CHART DATA</h1>
-                                    <v-img src="IMG/noimg.jpeg"></v-img
-                                  ></v-col>
+                                    <v-progress-circular
+                                      :size="50"
+                                      color="green"
+                                      indeterminate
+                                    ></v-progress-circular>
+                                    <!-- <v-img src="IMG/noimg.jpeg"></v-img -->
+                                  </v-col>
                                 </v-row>
                               </div>
                             </v-card-text>
@@ -96,7 +106,12 @@
                                   </v-col>
                                   <v-col cols="12" md="6">
                                     <h1>NO CHART DATA</h1>
-                                    <v-img src="IMG/noimg.jpeg"></v-img>
+                                    <v-progress-circular
+                                      :size="50"
+                                      color="green"
+                                      indeterminate
+                                    ></v-progress-circular>
+                                    <!-- <v-img src="IMG/noimg.jpeg"></v-img> -->
                                   </v-col>
                                 </v-row>
                               </div>
@@ -125,7 +140,7 @@
                 class="mx-auto my-10 rounded-xl text-center"
                 color="white"
                 width="80%"
-                title="<%= user.firstname %>'s' History"
+                title="History"
                 v-show="showHistory"
               >
                 <div class="mx-auto text-center my-10">
@@ -149,8 +164,11 @@
                   <hr />
                   <h1>SEL ROOM = {{ selectRoom }}</h1>
                   <hr />
+                  <h1>SEL DATE = {{ date }}</h1>
+                  <hr />
                   <div>
                     <v-container>
+                      <!-- CLASS & ROOM FILTER SELECT -->
                       <v-row class="mx-auto justify-center">
                         <v-col cols="12" md="5">
                           <v-select
@@ -175,29 +193,40 @@
                             return-object
                           ></v-select>
                         </v-col>
+                        <!-- HISTORY DATA MONTH YEAR FILTER SELECT -->
+                        <v-col cols="12" md="2" v-if="selectRoom != ''">
+                          <div class="mt-4">
+                            <!-- <label for="historyDate">Date:</label> -->
+                            <input
+                              type="date"
+                              id="historyDate"
+                              name="historyDate"
+                              v-model="date"
+                            />
+                          </div>
+                        </v-col>
+                      </v-row>
+                      <!-- PROCESS BUTTON ROW -->
+                      <v-row class="mx-auto justify-center">
                         <!-- SEARCH BUTTON -->
-                        <v-col cols="12" md="1" v-if="selectRoom != ''">
+                        <v-col cols="12" md="2" v-if="selectRoom != ''">
                           <v-btn
-                            
                             @click="actionSubmit()"
                             class="mx-auto mt-2"
                             color="success"
                           >
                             SEARCH
                           </v-btn>
-
                         </v-col>
                         <!-- CLEAR BUTTON -->
-                        <v-col cols="12" md="1" v-if="selectRoom != ''">
+                        <v-col cols="12" md="2" v-if="selectRoom != ''">
                           <v-btn
-                            
                             @click="clearFilter()"
                             class="mx-auto mt-2"
-                            color="red"
+                            color="warning"
                           >
-                          CLEAR
+                            CLEAR
                           </v-btn>
-
                         </v-col>
                       </v-row>
                     </v-container>
@@ -213,28 +242,56 @@
                     EXIT
                   </v-btn>
                 </div>
-                  <!-- SHOW USER PROFILE -->
+                <!-- SHOW USER PROFILE -->
+                <!-- DELAY LOADING -->
+                <v-progress-circular
+                  v-if="loading == true"
+                  :size="100"
+                  color="green"
+                  indeterminate
+                  class="mb-10"
+                ></v-progress-circular>
                 <div
                   class="d-flex justify-space-around"
-                  v-if="searchStudentList != '' && showHistory == true"
+                  v-if="searchStudentList != '' && showHistory == true && loading == false"
                   v-for="student in searchStudentList"
                 >
                   <v-card
-                    class="mx-auto my-2 rounded-xl text-center"
+                    class="mx-auto my-2 rounded-xl"
                     width="80%"
                     variant="outlined"
                   >
                     <v-container>
                       <v-row class="mx-auto justify-center">
-                        <v-col cols="12" md="8">
-                          <div class="d-flex justify-start">
-
-                            <div class="ml-10">
-                              <p class="font-weight-black text-h5">
+                        <v-col cols="12" md="2">
+                          <div v-if="`${student.history}` == 'Checked'">
+                            <v-icon
+                              color="success"
+                              size="30"
+                              icon="mdi-checkbox-marked-circle"
+                              class="mt-2"
+                            ></v-icon>
+                            <p>Checked</p>
+                          </div>
+                          <div v-if="`${student.history}` == 'Absent'">
+                            <v-icon
+                              color="red"
+                              size="30"
+                              icon="mdi-cancel"
+                              class="mt-2"
+                            ></v-icon>
+                            <p>Absent</p>
+                          </div>
+                        </v-col>
+                        <v-col cols="12" md="6">
+                          <div class="d-flex justify-center">
+                            <div>
+                              <p class="font-weight-black text-h8">
                                 Name : {{ student.name }}
                               </p>
                               <p>
-                                Class : {{ student.class }}/{{ student.room }} No :
+                                Class : {{ student.class }}/{{ student.room }}
+                                No :
                                 {{ student.no }}
                               </p>
                               <p>StudentID : {{ student.studentID }}</p>
@@ -248,19 +305,20 @@
                             v-bind:src="`${student.profileFile}`"
                           >
                           </v-img>
+                        </v-col>
                       </v-row>
                     </v-container>
                   </v-card>
                 </div>
-                  <!-- EXIT BUTTON -->
-                  <v-btn
-                    v-if="searchStudentList != ''"
-                    class="mx-auto my-6"
-                    color="red"
-                    @click="showHistory = !showHistory"
-                  >
-                    EXIT
-                  </v-btn>
+                <!-- EXIT BUTTON -->
+                <v-btn
+                  v-if="searchStudentList != '' && loading == false"
+                  class="mx-auto my-6"
+                  color="red"
+                  @click="showHistory = !showHistory"
+                >
+                  EXIT
+                </v-btn>
               </v-card>
             </div>
 
@@ -273,7 +331,6 @@
                 <v-btn type="submit">admin users</v-btn>
               </v-form>
             </div>
-
           </div>
         </v-main>
       </v-app>
@@ -290,7 +347,9 @@
             classItems: [],
             roomItems: [],
             searchStudentList: "",
+            date: "0000-00-00",
             showHistory: false,
+            loading: false,
             user: {
               username: "<%= user.username%>",
               email: "<%= user.email%>",
@@ -321,6 +380,7 @@
           },
           computeRoomItem() {
             this.roomItems = [];
+            this.selectRoom = "";
             if (this.selectClass != "") {
               for (x in this.selectClass.room) {
                 this.roomItems.push({ room: x });
@@ -328,7 +388,7 @@
             }
           },
           actionSubmit() {
-            const urlf = `/process/get/datahistory/studentlist/${this.selectClass.class}/${this.selectRoom.room}`;
+            const urlf = `/process/get/datahistory/studentlist/${this.selectClass.class}/${this.selectRoom.room}/${this.date}`;
             fetch(urlf, { method: "POST" })
               .then((res) => res.json())
               .then((datares) => {
@@ -337,12 +397,17 @@
               .catch((err) => {
                 console.error("Error: ", err);
               });
+            this.loading = true;
+            setTimeout(() => {
+              this.loading = false;
+            }, 500);
           },
           clearFilter() {
-            this.selectClass = ""
-            this.selectRoom = ""
-            this.roomItems = []
-            this.searchStudentList = ""
+            this.selectClass = "";
+            this.selectRoom = "";
+            this.roomItems = [];
+            this.searchStudentList = "";
+            this.date = "0000-00-00";
           },
         },
       });
