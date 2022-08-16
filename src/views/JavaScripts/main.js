@@ -1,10 +1,10 @@
-console.log("it's Sirisuk");
+// console.log("it's Sirisuk");
 
 function mainLoad() {
-  console.log("runMainFunction");
-  NavLoad();
-}
-function NavLoad() {
+  //   console.log("runMainFunction");
+  //   NavLoad();
+  // }
+  // function NavLoad() {
   // document.getElementById("navbt1").innerHTML = "Home";
   // document.getElementById("navbt2").innerHTML = "Sign in";
   // document.getElementById("navbt3").innerHTML = "Sign up";

@@ -3,7 +3,7 @@
   <head>
     <%- include('../partials/head.ejs'); %>
   </head>
-  <body onload="mainLoad();">
+  <body>
     <div id="app">
       <v-app>
         <v-main>
@@ -30,7 +30,7 @@
                       <v-col cols="12" md="6">
                         <div>
                           <v-card
-                            class="mx-auto"
+                            class="mx-auto rounded-xl"
                             width="100%"
                             variant="outlined"
                           >
@@ -42,7 +42,6 @@
                               <div>
                                 <v-row class="text-start">
                                   <v-col cols="12" md="6">
-                                    <h1>NO CHART DATA</h1>
                                     <v-progress-circular
                                       :size="50"
                                       color="green"
@@ -51,7 +50,6 @@
                                     <!-- <v-img src="IMG/noimg.jpeg"></v-img -->
                                   </v-col>
                                   <v-col cols="12" md="6">
-                                    <h1>NO CHART DATA</h1>
                                     <v-progress-circular
                                       :size="50"
                                       color="green"
@@ -68,53 +66,92 @@
                       <v-col cols="12" md="6">
                         <div>
                           <v-card
-                            class="mx-auto"
+                            class="mx-auto rounded-xl"
                             width="100%"
                             variant="outlined"
                           >
-                            <template v-slot:title> Lastest Reports </template>
-
-                            <v-card-text class="d-flex justify-center">
-                              <div>
-                                <v-row class="text-start">
-                                  <v-col cols="12" md="6">
-                                    <v-row class="text-start">
-                                      <v-col cols="12" md="12">
-                                        <p>
-                                          Fullname : <%=user.firstname%>
-                                          <%=user.lastname%>
-                                        </p>
-                                      </v-col>
-                                      <v-col cols="12" md="12">
-                                        <p>
-                                          Class : <%=user.class%>/<%=user.room%>
-                                          Number : <%=user.no%>
-                                        </p>
-                                      </v-col>
-                                      <v-col cols="12" md="12">
-                                        <p>
-                                          Check Status : มา / สาย / ขาด / ลา
-                                        </p>
-                                      </v-col>
-                                      <v-col cols="12" md="12">
-                                        <p>Timestamp : 11.59 PM</p>
-                                      </v-col>
-                                      <v-col cols="12" md="12">
-                                        <p>Date : 99 DECEMBER 9999</p>
-                                      </v-col>
-                                    </v-row>
-                                  </v-col>
-                                  <v-col cols="12" md="6">
-                                    <h1>NO CHART DATA</h1>
-                                    <v-progress-circular
-                                      :size="50"
-                                      color="green"
-                                      indeterminate
-                                    ></v-progress-circular>
-                                    <!-- <v-img src="IMG/noimg.jpeg"></v-img> -->
-                                  </v-col>
-                                </v-row>
-                              </div>
+                            <template v-slot:title> Daily Reports </template>
+                            <!-- DELAY LOADING -->
+                            <div
+                              v-if="loading == true"
+                              class="d-flex justify-center"
+                            >
+                              <v-progress-circular
+                                :size="100"
+                                color="green"
+                                indeterminate
+                                class="mb-4"
+                              ></v-progress-circular>
+                            </div>
+                            <v-card-text
+                              class="d-flex justify-center"
+                              v-if="loading == false"
+                            >
+                              <v-row>
+                                <v-col
+                                  cols="12"
+                                  md="6"
+                                  v-if="`${dataOfUser[0]}` == 'Checked'"
+                                  class="d-flex justify-center"
+                                >
+                                  <div class="ml-4 text-start">
+                                    <p>
+                                      Fullname : <%=user.firstname%>
+                                      <%=user.lastname%>
+                                    </p>
+                                    <p>
+                                      Class : <%=user.class%>/<%=user.room%>
+                                      Number : <%=user.no%>
+                                    </p>
+                                    <p>Check Status : {{ dataOfUser[0] }}</p>
+                                    <p>
+                                      Timestamp :
+                                      {{ dataOfUser[1].timestamp.hour }}:{{
+                                        dataOfUser[1].timestamp.minute
+                                      }}
+                                      {{ dataOfUser[1].timestamp.apm }}
+                                    </p>
+                                    <p>
+                                      Date :
+                                      {{ dataOfUser[1].timestamp.date }}/{{
+                                        dataOfUser[1].timestamp.month
+                                      }}/{{ dataOfUser[1].timestamp.year }}
+                                    </p>
+                                  </div>
+                                </v-col>
+                                <v-col
+                                  cols="12"
+                                  md="6"
+                                  v-if="`${dataOfUser[0]}` == 'Checked'"
+                                  class="text-center"
+                                >
+                                  <!-- CHECK STATUS ICON -->
+                                  <p>Checked</p>
+                                  <v-icon
+                                    color="success"
+                                    size="100"
+                                    icon="mdi-checkbox-marked-circle"
+                                    class="mt-2"
+                                  ></v-icon>
+                                </v-col>
+                                <v-col
+                                  cols="12"
+                                  md="12"
+                                  v-if="`${dataOfUser[0]}` == 'Absent'"
+                                  class="d-flex justify-center"
+                                >
+                                  <!-- NOT CHECK IN STATUS ICON -->
+                                  <div>
+                                    <p>This user hasn't checked in yet.</p>
+                                    <v-icon
+                                      color="grey"
+                                      size="200"
+                                      icon="mdi-note-off"
+                                      class="mt-2"
+                                    ></v-icon>
+                                  </div>
+                                </v-col>
+                              </v-row>
                             </v-card-text>
                           </v-card>
                         </div>
@@ -264,6 +301,13 @@
                     <v-container>
                       <v-row class="mx-auto justify-center">
                         <v-col cols="12" md="2">
+                          <v-btn
+                            v-bind:href="`${student.dataLink}`"
+                            color="purple"
+                            class="mb-4"
+                          >
+                            Profile
+                          </v-btn>
                           <div v-if="`${student.history}` == 'Checked'">
                             <v-icon
                               color="success"
@@ -337,11 +381,13 @@
     </div>
 
     <%- include('../partials/footer.ejs'); %>
+
     <script>
       const vuetify = Vuetify.createVuetify();
       const app = Vue.createApp({
         data() {
           return {
+            dataOfUser: "",
             selectClass: "",
             selectRoom: "",
             classItems: [],
@@ -365,10 +411,24 @@
         },
         mounted: function () {
           //method1 will execute at pageload
-          this.getClassItems();
+          this.getInitDataPage();
+          this.loading = true;
+          setTimeout(() => {
+            this.loading = false;
+          }, 500);
         },
         methods: {
-          getClassItems() {
+          getInitDataPage() {
+            fetch("/process/get/dataOfUser/<%= user.studentID%>", {
+              method: "POST",
+            })
+              .then((res) => res.json())
+              .then((datares) => {
+                this.dataOfUser = datares.dataOfUser;
+              })
+              .catch((err) => {
+                console.error("Error: ", err);
+              });
             fetch("/process/get/classitems", { method: "POST" })
               .then((res) => res.json())
               .then((datares) => {

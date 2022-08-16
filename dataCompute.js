@@ -7,6 +7,7 @@ const client = new MongoClient(url);
 const database = client.db("FaceAttendance");
 const users = database.collection("users");
 const attendance = database.collection("Attendance");
+const lastlogin = database.collection("LastLogin");
 exports.computeLastLogin = async (req, res) => {
   const query = {};
   const options = {
@@ -172,6 +173,8 @@ exports.computeDataHistoryStudentList = async (req, res) => {
           info.history = "Checked";
         }
       });
+      info.dataLink =
+        req.protocol + "://" + req.header("host") + "/data/" + info.studentID;
       if (info.profileFile != undefined) {
         info.profileFile =
           req.protocol +
@@ -188,4 +191,39 @@ exports.computeDataHistoryStudentList = async (req, res) => {
   }
   console.log(result);
   res.send({ studentList: result });
+};
+exports.computeDataOfUser = async (req, res) => {
+  var dateHistory =
+    moment().format("YYYY") +
+    "-" +
+    moment().format("MM") +
+    "-" +
+    moment().format("D");
+  dateHistory = dateHistory.split("-");
+  const options = {
+    sort: { _id: -1 },
+  };
+  const queryToday = {
+    $and: [
+      { studentID: req.params.studentID },
+      { "timestamp.year": dateHistory[0] },
+      { "timestamp.month": dateHistory[1] },
+      { "timestamp.date": dateHistory[2] },
+    ],
+  };
+  const queryAll = { studentID: req.user.studentID };
+  const cursorToday = await lastlogin.find(queryToday, options);
+  // const cursorAll = lastlogin.find(queryAll, options);
+  let resultToday = await cursorToday.toArray();
+  // let resultAll = await cursorAll.toArray();
+  // console.log("ALL", resultAll);
+  var todayState;
+  if (resultToday.length > 0) {
+    resultToday = resultToday[0];
+    todayState = "Checked";
+  } else {
+    resultToday = "NO DATA";
+    todayState = "Absent";
+  }
+  res.send({ dataOfUser: [todayState, resultToday] });
 };

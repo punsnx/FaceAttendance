@@ -44,7 +44,9 @@ initializePassport(
 );
 var MongoClient = require("mongodb").MongoClient;
 var url = process.env.CON_DB;
-
+const client = new MongoClient(url);
+const database = client.db("FaceAttendance");
+const users = database.collection("users");
 //app.use
 app.use(morgan("combined"));
 app.use("/CSS", express.static(__dirname + "/src/views/CSS"));
@@ -237,8 +239,7 @@ app.post(
   }
 );
 //DATA PAGE
-app.get("/data", checkAuthenticated, (req, res) => {
-  console.log(req.user);
+app.get("/data", checkAuthenticated, async (req, res) => {
   if (req.user.profileFile != undefined) {
     res.render("pages/data", {
       title: "Data",
@@ -257,6 +258,35 @@ app.get("/data", checkAuthenticated, (req, res) => {
       profileFile: "IMG/noimg.jpeg",
       //profileFile: req.user.profileFile
     });
+  }
+});
+
+app.get("/data/:studentID", checkAuthenticated, async (req, res) => {
+  const cursor = users.find({ studentID: req.params.studentID });
+  var result = await cursor.toArray();
+  if (result.length > 0) {
+    if (result[0].profileFile != undefined) {
+      res.render("pages/data", {
+        title: "Data",
+        user: result[0],
+        profileFile:
+          req.protocol +
+          "://" +
+          req.header("host") +
+          "/storage/user_profile/" +
+          result[0].profileFile,
+      });
+    } else {
+      res.render("pages/data", {
+        title: "Profile",
+        user: result[0],
+        profileFile:
+          req.protocol + "://" + req.header("host") + "/IMG/noimg.jpeg",
+        //profileFile: req.user.profileFile
+      });
+    }
+  } else {
+    res.send("NO USER");
   }
 });
 //LOGOUT
@@ -357,9 +387,6 @@ app.post(
   "/process/showusers/deleteprofile/:id/:studentID",
   checkAuthenticated,
   async (req, res) => {
-    const client = new MongoClient(url);
-    const database = client.db("FaceAttendance");
-    const users = database.collection("users");
     const query = { id: req.params.id };
     const newvalues = { $set: { profileFile: undefined } };
     try {
@@ -389,6 +416,15 @@ app.post(
     res.redirect(307, "/showusers");
   }
 );
+// get init Data Page Data Of User
+app.post(
+  "/process/get/dataOfUser/:studentID",
+  checkAuthenticated,
+  async (req, res) => {
+    dataCompute.computeDataOfUser(req, res);
+  }
+);
+// get init Data Page class items
 app.post("/process/get/classitems", checkAuthenticated, async (req, res) => {
   dataCompute.computeUsersClassCount(req, res);
 });
@@ -400,11 +436,6 @@ app.post(
     dataCompute.computeDataHistoryStudentList(req, res);
   }
 );
-
-//testReactMe API
-app.get("/api", (req, res) => {
-  res.json({ message: "Hello from Express!" });
-});
 
 const PORT = port || parseInt(process.env.PORT) || 8080;
 http.createServer(app).listen(PORT, () => {
