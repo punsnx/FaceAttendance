@@ -18,11 +18,10 @@
               class="mx-auto justify-center rounded-xl pa-4 my-10"
               flat
               width="70%"
-              height="1200px"
               ><div class="d-flex justify-center">
                 <%- include('../partials/googlecharts.ejs'); %>
               </div>
-              <div>
+              <div v-if="loading == false">
                 <h3>Last Login</h3>
                 <v-card
                   class="mx-auto rounded-xl mb-6"
@@ -47,6 +46,12 @@
                   </v-card-text>
                 </v-card>
               </div>
+              <!-- DELAY LOADING -->
+              <v-progress-linear
+                v-if="loading == true"
+                indeterminate
+                color="green"
+              ></v-progress-linear>
             </v-card>
           </div>
         </v-main>
@@ -55,17 +60,31 @@
 
     <%- include('../partials/footer.ejs'); %>
     <script>
-      var x;
       const vuetify = Vuetify.createVuetify();
       const app = Vue.createApp({
         data() {
           return {
             lastLoginData: "",
+            loading: false,
           };
         },
         mounted: function () {
           //method1 will execute at pageload
+          this.loading = true;
+          loadChart();
           this.getLastLogin();
+          setTimeout(() => {
+            this.loading = false;
+          }, 500);
+          // auto fetch update interval
+          setInterval(() => {
+            this.loading = true;
+            loadChart();
+            this.getLastLogin();
+            setTimeout(() => {
+              this.loading = false;
+            }, 200);
+          }, 120000);
         },
         methods: {
           getLastLogin() {
@@ -83,5 +102,12 @@
 
       app.use(vuetify).mount("#app");
     </script>
+    <!-- <script>
+      function startLiveUpdate() {
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+        startLiveUpdate();
+      });
+    </script> -->
   </body>
 </html>

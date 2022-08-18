@@ -34,42 +34,6 @@
                             width="100%"
                             variant="outlined"
                           >
-                            <template v-slot:title>
-                              Weekly & Monthly Reports
-                            </template>
-
-                            <v-card-text class="d-flex justify-center">
-                              <div>
-                                <v-row class="text-start">
-                                  <v-col cols="12" md="6">
-                                    <v-progress-circular
-                                      :size="50"
-                                      color="green"
-                                      indeterminate
-                                    ></v-progress-circular>
-                                    <!-- <v-img src="IMG/noimg.jpeg"></v-img -->
-                                  </v-col>
-                                  <v-col cols="12" md="6">
-                                    <v-progress-circular
-                                      :size="50"
-                                      color="green"
-                                      indeterminate
-                                    ></v-progress-circular>
-                                    <!-- <v-img src="IMG/noimg.jpeg"></v-img -->
-                                  </v-col>
-                                </v-row>
-                              </div>
-                            </v-card-text>
-                          </v-card>
-                        </div>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <div>
-                          <v-card
-                            class="mx-auto rounded-xl"
-                            width="100%"
-                            variant="outlined"
-                          >
                             <template v-slot:title> Daily Reports </template>
                             <!-- DELAY LOADING -->
                             <div
@@ -91,7 +55,6 @@
                                 <v-col
                                   cols="12"
                                   md="6"
-                                  v-if="`${dataOfUser[0]}` == 'Checked'"
                                   class="d-flex justify-center"
                                 >
                                   <div class="ml-4 text-start">
@@ -103,15 +66,17 @@
                                       Class : <%=user.class%>/<%=user.room%>
                                       Number : <%=user.no%>
                                     </p>
-                                    <p>Check Status : {{ dataOfUser[0] }}</p>
-                                    <p>
+                                    <p v-if="`${dataOfUser[0]}` == 'Checked'">
+                                      Check Status : {{ dataOfUser[0] }}
+                                    </p>
+                                    <p v-if="`${dataOfUser[0]}` == 'Checked'">
                                       Timestamp :
                                       {{ dataOfUser[1].timestamp.hour }}:{{
                                         dataOfUser[1].timestamp.minute
                                       }}
                                       {{ dataOfUser[1].timestamp.apm }}
                                     </p>
-                                    <p>
+                                    <p v-if="`${dataOfUser[0]}` == 'Checked'">
                                       Date :
                                       {{ dataOfUser[1].timestamp.date }}/{{
                                         dataOfUser[1].timestamp.month
@@ -126,7 +91,8 @@
                                   class="text-center"
                                 >
                                   <!-- CHECK STATUS ICON -->
-                                  <p>Checked</p>
+                                  <!-- Checked -->
+                                  <p>{{ dataOfUser[0] }}</p>
                                   <v-icon
                                     color="success"
                                     size="100"
@@ -136,25 +102,106 @@
                                 </v-col>
                                 <v-col
                                   cols="12"
-                                  md="12"
+                                  md="6"
                                   v-if="`${dataOfUser[0]}` == 'Absent'"
-                                  class="d-flex justify-center"
+                                  class="text-center"
                                 >
                                   <!-- NOT CHECK IN STATUS ICON -->
+                                  <p>{{ dataOfUser[0] }}</p>
+                                  <v-icon
+                                    color="grey"
+                                    size="100"
+                                    icon="mdi-note-off"
+                                    class="mt-2"
+                                  ></v-icon>
+                                </v-col>
+                                <v-col
+                                  cols="12"
+                                  md="12"
+                                  class="d-flex justify-center"
+                                >
                                   <div>
-                                    <p>This user hasn't checked in yet.</p>
-                                    <v-icon
-                                      color="grey"
-                                      size="200"
-                                      icon="mdi-note-off"
-                                      class="mt-2"
-                                    ></v-icon>
+                                    <input
+                                      type="date"
+                                      id="historyDaily"
+                                      name="historyDaily"
+                                      v-model="date.dateDaily"
+                                    />
+                                    <v-btn
+                                      @click="fetchUserDaily()"
+                                      class="mx-auto ml-4"
+                                      color="success"
+                                    >
+                                      SEARCH
+                                    </v-btn>
                                   </div>
                                 </v-col>
                               </v-row>
                             </v-card-text>
                           </v-card>
                         </div>
+                      </v-col>
+                      <v-col cols="12" md="6">
+                        <v-card
+                          class="mx-auto rounded-xl"
+                          width="100%"
+                          variant="outlined"
+                        >
+                          <template v-slot:title> Weekly Reports </template>
+
+                          <v-card-text class="d-flex justify-center">
+                            <div>
+                              <div class="d-flex justify-center">
+                                <%- include('../partials/dataCharts.ejs'); %>
+                                <canvas
+                                  id="weeklyChart"
+                                  style="width: 100%; max-width: 600px"
+                                ></canvas>
+                              </div>
+                            </div>
+                          </v-card-text>
+                        </v-card>
+                      </v-col>
+                    </v-row>
+                    <v-row class="text-start mx-2">
+                      <v-col cols="12" md="6">
+                        <v-card
+                          class="mx-auto rounded-xl"
+                          width="100%"
+                          variant="outlined"
+                        >
+                          <template v-slot:title> Monthly Reports </template>
+
+                          <v-card-text class="d-flex justify-center">
+                            <div>
+                              <div class="d-flex justify-center">
+                                <canvas
+                                  id="monthlyChart"
+                                  style="width: 100%; max-width: 600px"
+                                ></canvas>
+                              </div>
+                            </div>
+                          </v-card-text>
+                        </v-card>
+                      </v-col>
+                      <v-col cols="12" md="6">
+                        <v-card
+                          class="mx-auto rounded-xl"
+                          width="100%"
+                          variant="outlined"
+                        >
+                          <template v-slot:title> All Time Reports </template>
+
+                          <v-card-text class="d-flex justify-center">
+                            <div>
+                              <v-progress-circular
+                                :size="100"
+                                color="green"
+                                indeterminate
+                              ></v-progress-circular>
+                            </div>
+                          </v-card-text>
+                        </v-card>
                       </v-col>
                     </v-row>
                   </v-container>
@@ -238,7 +285,7 @@
                               type="date"
                               id="historyDate"
                               name="historyDate"
-                              v-model="date"
+                              v-model="date.dateSearch"
                             />
                           </div>
                         </v-col>
@@ -315,7 +362,8 @@
                               icon="mdi-checkbox-marked-circle"
                               class="mt-2"
                             ></v-icon>
-                            <p>Checked</p>
+                            <!-- Checked -->
+                            <p>{{ student.history }}</p>
                           </div>
                           <div v-if="`${student.history}` == 'Absent'">
                             <v-icon
@@ -324,7 +372,8 @@
                               icon="mdi-cancel"
                               class="mt-2"
                             ></v-icon>
-                            <p>Absent</p>
+                            <!-- Absent -->
+                            <p>{{ student.history }}</p>
                           </div>
                         </v-col>
                         <v-col cols="12" md="6">
@@ -339,6 +388,18 @@
                                 {{ student.no }}
                               </p>
                               <p>StudentID : {{ student.studentID }}</p>
+                              <p>
+                                Date : {{ student.timestamp.date }}/{{
+                                  student.timestamp.month
+                                }}/{{ student.timestamp.year }}
+                              </p>
+                              <p v-if="`${student.timestamp.apm}` != '-'">
+                                Timestamp : {{ student.timestamp.hour }}:{{
+                                  student.timestamp.minute
+                                }}:{{ student.timestamp.second }}
+                                {{ student.timestamp.apm }}
+                              </p>
+                              <p v-else>Timestamp : -</p>
                             </div>
                           </div>
                         </v-col>
@@ -388,12 +449,17 @@
         data() {
           return {
             dataOfUser: "",
+            reportsWeekly: "",
+            reportsMonthly: "",
             selectClass: "",
             selectRoom: "",
             classItems: [],
             roomItems: [],
             searchStudentList: "",
-            date: "0000-00-00",
+            date: {
+              dateSearch: "0000-00-00",
+              dateDaily: "0000-00-00",
+            },
             showHistory: false,
             loading: false,
             user: {
@@ -412,23 +478,37 @@
         mounted: function () {
           //method1 will execute at pageload
           this.getInitDataPage();
+          this.fetchUserDaily();
           this.loading = true;
           setTimeout(() => {
             this.loading = false;
           }, 500);
         },
         methods: {
-          getInitDataPage() {
-            fetch("/process/get/dataOfUser/<%= user.studentID%>", {
-              method: "POST",
-            })
+          fetchUserDaily() {
+            fetch(
+              `/process/get/dataOfUser/${this.date.dateDaily}/<%= user.studentID%>/`,
+              {
+                method: "POST",
+              }
+            )
               .then((res) => res.json())
               .then((datares) => {
                 this.dataOfUser = datares.dataOfUser;
+                this.reportsWeekly = datares.reportsWeekly;
+                this.reportsMonthly = datares.reportsMonthly;
+                loadWeeklyChart(datares.reportsWeekly);
+                loadMonthlyChart(datares.reportsMonthly);
               })
               .catch((err) => {
                 console.error("Error: ", err);
               });
+            this.loading = true;
+            setTimeout(() => {
+              this.loading = false;
+            }, 500);
+          },
+          getInitDataPage() {
             fetch("/process/get/classitems", { method: "POST" })
               .then((res) => res.json())
               .then((datares) => {
@@ -448,7 +528,7 @@
             }
           },
           actionSubmit() {
-            const urlf = `/process/get/datahistory/studentlist/${this.selectClass.class}/${this.selectRoom.room}/${this.date}`;
+            const urlf = `/process/get/datahistory/studentlist/${this.date.dateSearch}/${this.selectClass.class}/${this.selectRoom.room}/`;
             fetch(urlf, { method: "POST" })
               .then((res) => res.json())
               .then((datares) => {
@@ -467,7 +547,7 @@
             this.selectRoom = "";
             this.roomItems = [];
             this.searchStudentList = "";
-            this.date = "0000-00-00";
+            this.date.dateSearch = "0000-00-00";
           },
         },
       });

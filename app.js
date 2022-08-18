@@ -418,7 +418,7 @@ app.post(
 );
 // get init Data Page Data Of User
 app.post(
-  "/process/get/dataOfUser/:studentID",
+  "/process/get/dataOfUser/:dateHistory/:studentID/",
   checkAuthenticated,
   async (req, res) => {
     dataCompute.computeDataOfUser(req, res);
@@ -430,7 +430,7 @@ app.post("/process/get/classitems", checkAuthenticated, async (req, res) => {
 });
 //data compute list users form filter
 app.post(
-  "/process/get/datahistory/studentlist/:class/:room/:dateHistory",
+  "/process/get/datahistory/studentlist/:dateHistory/:class/:room/",
   checkAuthenticated,
   (req, res) => {
     dataCompute.computeDataHistoryStudentList(req, res);

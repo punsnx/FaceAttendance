@@ -168,9 +168,20 @@ exports.computeDataHistoryStudentList = async (req, res) => {
   try {
     result.forEach((info) => {
       info.history = "Absent";
+      info.timestamp = {
+        date: dateHistory[2],
+        month: dateHistory[1],
+        year: dateHistory[0],
+        hour: "-",
+        minute: "-",
+        second: "-",
+        millisecond: "-",
+        apm: "-",
+      };
       resultCheckIn.forEach((data) => {
         if (data.studentID == info.studentID) {
           info.history = "Checked";
+          info.timestamp = data.timestamp;
         }
       });
       info.dataLink =
@@ -183,7 +194,8 @@ exports.computeDataHistoryStudentList = async (req, res) => {
           "/storage/user_profile/" +
           info.profileFile;
       } else {
-        info.profileFile = "IMG/noimg.jpeg";
+        info.profileFile =
+          req.protocol + "://" + req.header("host") + "/IMG/noimg.jpeg";
       }
     });
   } catch {
@@ -193,13 +205,18 @@ exports.computeDataHistoryStudentList = async (req, res) => {
   res.send({ studentList: result });
 };
 exports.computeDataOfUser = async (req, res) => {
-  var dateHistory =
-    moment().format("YYYY") +
-    "-" +
-    moment().format("MM") +
-    "-" +
-    moment().format("D");
-  dateHistory = dateHistory.split("-");
+  var dateHistory = req.params.dateHistory;
+  if (dateHistory == "" || dateHistory == "0000-00-00") {
+    dateHistory =
+      moment().format("YYYY") +
+      "-" +
+      moment().format("MM") +
+      "-" +
+      moment().format("D");
+    dateHistory = dateHistory.split("-");
+  } else {
+    dateHistory = dateHistory.split("-");
+  }
   const options = {
     sort: { _id: -1 },
   };
@@ -211,12 +228,8 @@ exports.computeDataOfUser = async (req, res) => {
       { "timestamp.date": dateHistory[2] },
     ],
   };
-  const queryAll = { studentID: req.user.studentID };
-  const cursorToday = await lastlogin.find(queryToday, options);
-  // const cursorAll = lastlogin.find(queryAll, options);
+  const cursorToday = await attendance.find(queryToday, options);
   let resultToday = await cursorToday.toArray();
-  // let resultAll = await cursorAll.toArray();
-  // console.log("ALL", resultAll);
   var todayState;
   if (resultToday.length > 0) {
     resultToday = resultToday[0];
@@ -225,5 +238,126 @@ exports.computeDataOfUser = async (req, res) => {
     resultToday = "NO DATA";
     todayState = "Absent";
   }
-  res.send({ dataOfUser: [todayState, resultToday] });
+  const reportsWeekly = await computeDataOfUserWeekly(req, res);
+  const reportsMonthly = await computeDataOfUserMonthly(req, res);
+  res.send({
+    dataOfUser: [todayState, resultToday],
+    reportsWeekly: reportsWeekly,
+    reportsMonthly: reportsMonthly,
+  });
 };
+async function computeDataOfUserWeekly(req, res) {
+  var todayDate = new Date();
+  var day = todayDate.getDate();
+  var month = todayDate.getMonth() + 1;
+  if (month < 10) {
+    month = "0" + month;
+  }
+  var queryDateValue = [];
+  for (day; day > 0; day--) {
+    todayDate.setDate(day);
+    dayOfWeek = todayDate.getDay();
+    if (dayOfWeek === 6 || dayOfWeek === 0) {
+      break;
+    } else {
+      queryDateValue.push(todayDate.getDate().toString());
+      console.log(todayDate, dayOfWeek, day);
+    }
+  }
+  const query = {
+    $and: [
+      { studentID: req.params.studentID },
+      { "timestamp.year": todayDate.getFullYear().toString() },
+      { "timestamp.month": month.toString() },
+      { "timestamp.date": { $in: queryDateValue } },
+    ],
+  };
+  const options = {
+    sort: { _id: -1 },
+  };
+  cursor = attendance.find(query, options);
+  result = await cursor.toArray();
+  var arr = [];
+  for (var i = 0; i < result.length; i++) {
+    arr.push(result[i].timestamp.date);
+  }
+  const counts = {};
+  arr.forEach((x) => {
+    counts[x] = (counts[x] || 0) + 1;
+  });
+  for (i in queryDateValue) {
+    if (queryDateValue[i] in counts) {
+      counts[queryDateValue[i]] = 1;
+    } else {
+      counts[queryDateValue[i]] = 0;
+    }
+  }
+  var exChartData = [[], []];
+  for (j in counts) {
+    exChartData[0].push("DAY" + j);
+    exChartData[1].push(counts[j]);
+  }
+  // console.log(
+  //   "Weekly",
+  //   month,
+  //   todayDate.getFullYear().toString(),
+  //   queryDateValue,
+  //   result,
+  //   counts,
+  //   exChartData
+  // );
+  return exChartData;
+}
+async function computeDataOfUserMonthly(req, res) {
+  var todayDate = new Date();
+  var day = todayDate.getDate();
+  var month = todayDate.getMonth() + 1;
+  if (month < 10) {
+    month = "0" + month;
+  }
+  var queryDateValue = [];
+  for (day; day > 0; day--) {
+    todayDate.setDate(day);
+    dayOfWeek = todayDate.getDay();
+    if (dayOfWeek === 6 || dayOfWeek === 0) {
+    } else {
+      queryDateValue.push(todayDate.getDate().toString());
+      console.log(todayDate, dayOfWeek, day);
+    }
+  }
+  const query = {
+    $and: [
+      { studentID: req.params.studentID },
+      { "timestamp.year": todayDate.getFullYear().toString() },
+      { "timestamp.month": month.toString() },
+      { "timestamp.date": { $in: queryDateValue } },
+    ],
+  };
+  const options = {
+    sort: { _id: -1 },
+  };
+  cursor = attendance.find(query, options);
+  result = await cursor.toArray();
+  var arr = [];
+  for (var i = 0; i < result.length; i++) {
+    arr.push(result[i].timestamp.date);
+  }
+  const counts = {};
+  arr.forEach((x) => {
+    counts[x] = (counts[x] || 0) + 1;
+  });
+  for (i in queryDateValue) {
+    if (queryDateValue[i] in counts) {
+      counts[queryDateValue[i]] = 1;
+    } else {
+      counts[queryDateValue[i]] = 0;
+    }
+  }
+  var exChartData = [[], []];
+  for (j in counts) {
+    exChartData[0].push("DAY" + j);
+    exChartData[1].push(counts[j]);
+  }
+  console.log(queryDateValue, counts, exChartData);
+  return exChartData;
+}

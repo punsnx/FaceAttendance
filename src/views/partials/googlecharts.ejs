@@ -2,32 +2,55 @@
   type="text/javascript"
   src="https://www.gstatic.com/charts/loader.js"
 ></script>
-<div id="myChart" style="width: 100%; max-width: 600px; height: 500px"></div>
-<div id="BarChart" style="width: 100%; max-width: 600px; height: 500px"></div>
+<div
+  id="myChart"
+  style="width: 100%; max-width: 600px; height: 500px"
+  v-if="loading == false"
+></div>
+<div
+  id="BarChart"
+  style="width: 100%; max-width: 600px; height: 500px"
+  v-if="loading == false"
+></div>
+<!-- <v-progress-circular
+  v-if="loading == true"
+  :size="300"
+  color="green"
+  indeterminate
+></v-progress-circular>
+<v-progress-circular
+  v-if="loading == true"
+  :size="300"
+  color="green"
+  indeterminate
+></v-progress-circular> -->
 <script>
-  google.charts.load("current", { packages: ["corechart"] });
-  google.charts.setOnLoadCallback(drawChart);
+  function loadChart() {
+    google.charts.load("current", { packages: ["corechart"] });
+    google.charts.setOnLoadCallback(drawChart);
 
-  function drawChart() {
-    fetch("/process/get/chart", { method: "POST" })
-      .then((res) => res.json())
-      .then((datares) => {
-        var data = google.visualization.arrayToDataTable(datares.chart);
-        var options = {
-          title: "freqency user login",
-        };
+    function drawChart() {
+      fetch("/process/get/chart", { method: "POST" })
+        .then((res) => res.json())
+        .then((datares) => {
+          console.log(datares.chart);
+          var data = google.visualization.arrayToDataTable(datares.chart);
+          var options = {
+            title: "freqency user login",
+          };
 
-        var PieChart = new google.visualization.PieChart(
-          document.getElementById("myChart")
-        );
-        PieChart.draw(data, options);
-        var BarChart = new google.visualization.BarChart(
-          document.getElementById("BarChart")
-        );
-        BarChart.draw(data, options);
-      })
-      .catch((err) => {
-        console.error("Error: ", err);
-      });
+          var PieChart = new google.visualization.PieChart(
+            document.getElementById("myChart")
+          );
+          PieChart.draw(data, options);
+          var BarChart = new google.visualization.BarChart(
+            document.getElementById("BarChart")
+          );
+          BarChart.draw(data, options);
+        })
+        .catch((err) => {
+          console.error("Error: ", err);
+        });
+    }
   }
 </script>
