@@ -33,7 +33,6 @@
       fetch("/process/get/chart", { method: "POST" })
         .then((res) => res.json())
         .then((datares) => {
-          console.log(datares.chart);
           var data = google.visualization.arrayToDataTable(datares.chart);
           var options = {
             title: "freqency user login",

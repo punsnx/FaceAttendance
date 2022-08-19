@@ -14,20 +14,33 @@ exports.computeLastLogin = async (req, res) => {
     sort: { _id: -1 },
     projection: { _id: 0, studentID: 1, name: 1, timestamp: 1 },
   };
-  MongoClient.connect(url, function (err, db) {
-    if (err) throw err;
-    var dbo = db.db("FaceAttendance");
-    dbo
-      .collection("LastLogin")
-      .find(query, options)
-      .limit(5)
-      .toArray(function (err, result) {
-        if (err) throw err;
-        console.log(result);
-        res.send({ lastlogin: result });
-        db.close();
-      });
+  const cursor = attendance.find(query, options).limit(5);
+  const result = await cursor.toArray();
+  const cursorUsers = users.find(
+    {},
+    { projection: { _id: 0, studentID: 1, profileFile: 1 } }
+  );
+  var resultUsers = await cursorUsers.toArray();
+
+  result.forEach((data) => {
+    resultUsers.forEach((info) => {
+      if (info.studentID == data.studentID) {
+        if (info.profileFile != undefined) {
+          data["profileFile"] =
+            req.protocol +
+            "://" +
+            req.header("host") +
+            "/storage/user_profile/" +
+            data.studentID +
+            ".jpeg";
+        } else {
+          data["profileFile"] = "IMG/noimg.jpeg";
+        }
+      }
+    });
   });
+
+  res.send({ lastlogin: result });
 };
 
 exports.computeIndex = async (req, res) => {
@@ -233,26 +246,41 @@ exports.computeDataOfUser = async (req, res) => {
   var todayState;
   if (resultToday.length > 0) {
     resultToday = resultToday[0];
-    todayState = "Checked";
+    if (resultToday.timestamp.hour <= 8) {
+      //CHECK late
+      if (resultToday.timestamp.minute == 0) {
+        todayState = "Checked";
+      } else {
+        todayState = "Late";
+      }
+    } else {
+      todayState = "Late";
+    }
   } else {
     resultToday = "NO DATA";
     todayState = "Absent";
   }
   const reportsWeekly = await computeDataOfUserWeekly(req, res);
-  const reportsMonthly = await computeDataOfUserMonthly(req, res);
   res.send({
     dataOfUser: [todayState, resultToday],
     reportsWeekly: reportsWeekly,
-    reportsMonthly: reportsMonthly,
   });
 };
 async function computeDataOfUserWeekly(req, res) {
   var todayDate = new Date();
+  if (todayDate.getDay() === 6) {
+    todayDate.setDate(todayDate.getDate() - 1);
+  }
+  if (todayDate.getDay() === 0) {
+    todayDate.setDate(todayDate.getDate() - 2);
+  }
   var day = todayDate.getDate();
   var month = todayDate.getMonth() + 1;
   if (month < 10) {
     month = "0" + month;
   }
+
+  console.log(todayDate);
   var queryDateValue = [];
   for (day; day > 0; day--) {
     todayDate.setDate(day);
@@ -308,13 +336,30 @@ async function computeDataOfUserWeekly(req, res) {
   // );
   return exChartData;
 }
-async function computeDataOfUserMonthly(req, res) {
+exports.computeDataOfUserMonthly = async (req, res) => {
   var todayDate = new Date();
+  var dateHistory = req.params.dateHistory;
+  dateHistory = dateHistory.split("-");
+  if (
+    dateHistory[0] == todayDate.getFullYear() &&
+    dateHistory[1] == todayDate.getMonth() + 1
+  ) {
+  } else {
+    if (dateHistory[0] != todayDate.getFullYear()) {
+      todayDate.setFullYear(dateHistory[0]);
+    }
+    if (dateHistory[1] != todayDate.getMonth() + 1) {
+      todayDate.setMonth(dateHistory[1]);
+    }
+    todayDate.setDate(0);
+    todayDate.setDate(todayDate.getDate());
+  }
   var day = todayDate.getDate();
   var month = todayDate.getMonth() + 1;
   if (month < 10) {
     month = "0" + month;
   }
+
   var queryDateValue = [];
   for (day; day > 0; day--) {
     todayDate.setDate(day);
@@ -322,7 +367,7 @@ async function computeDataOfUserMonthly(req, res) {
     if (dayOfWeek === 6 || dayOfWeek === 0) {
     } else {
       queryDateValue.push(todayDate.getDate().toString());
-      console.log(todayDate, dayOfWeek, day);
+      // console.log(todayDate, dayOfWeek, day);
     }
   }
   const query = {
@@ -339,8 +384,13 @@ async function computeDataOfUserMonthly(req, res) {
   cursor = attendance.find(query, options);
   result = await cursor.toArray();
   var arr = [];
+  var arrCheck = {};
   for (var i = 0; i < result.length; i++) {
     arr.push(result[i].timestamp.date);
+    arrCheck[result[i].timestamp.date] = {
+      hour: result[i].timestamp.hour,
+      minute: result[i].timestamp.minute,
+    };
   }
   const counts = {};
   arr.forEach((x) => {
@@ -348,16 +398,39 @@ async function computeDataOfUserMonthly(req, res) {
   });
   for (i in queryDateValue) {
     if (queryDateValue[i] in counts) {
-      counts[queryDateValue[i]] = 1;
+      if (arrCheck[queryDateValue[i]].hour <= 8) {
+        //CHECK late
+        if (arrCheck[queryDateValue[i]].minute == 0) {
+          counts[queryDateValue[i]] = 1;
+        } else {
+          counts[queryDateValue[i]] = 0.5;
+        }
+      } else {
+        counts[queryDateValue[i]] = 0.5;
+      }
     } else {
-      counts[queryDateValue[i]] = 0;
+      counts[queryDateValue[i]] = -0.2;
     }
   }
-  var exChartData = [[], []];
+  var exChartData = [[], [], "", ""];
   for (j in counts) {
-    exChartData[0].push("DAY" + j);
+    exChartData[0].push("D" + j);
     exChartData[1].push(counts[j]);
+    exChartData[2] = month.toString();
+    exChartData[3] = todayDate.getFullYear().toString();
   }
-  console.log(queryDateValue, counts, exChartData);
-  return exChartData;
-}
+  // console.log(queryDateValue, counts, exChartData);
+  // TestMonthly(req, res);
+  res.send({ reportsMonthly: exChartData });
+};
+exports.computeDataOfUserAllTime = async (req, res) => {
+  var since = [2020, 01, 01];
+  var queryDateObject = {};
+  for (var yearNow = new Date().getFullYear(); yearNow >= since[0]; yearNow--) {
+    queryDateObject[yearNow] = {};
+    if (yearNow == new Date().getFullYear()) {
+    } else {
+    }
+    console.log(yearNow);
+  }
+};

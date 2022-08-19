@@ -30,8 +30,9 @@
                   v-for="login in lastLoginData"
                 >
                   <template v-slot:title>
-                    <v-avatar color="info">
-                      <v-icon icon="mdi-account-circle"></v-icon>
+                    <v-avatar>
+                      <img v-bind:src="`${login.profileFile}`" />
+                      <!-- <v-icon icon="mdi-account-circle"></v-icon> -->
                     </v-avatar>
                     {{ login.name }} | {{ login.studentID }}
                   </template>

@@ -24,7 +24,7 @@
                 width="80%"
                 title="<%= user.firstname %> <%= user.lastname %>'s Data"
               >
-                <div class="mx-auto mb-10">
+                <div class="mx-auto">
                   <v-container>
                     <v-row class="text-start mx-2">
                       <v-col cols="12" md="6">
@@ -32,6 +32,7 @@
                           <v-card
                             class="mx-auto rounded-xl"
                             width="100%"
+                            height="300px"
                             variant="outlined"
                           >
                             <template v-slot:title> Daily Reports </template>
@@ -103,6 +104,22 @@
                                 <v-col
                                   cols="12"
                                   md="6"
+                                  v-if="`${dataOfUser[0]}` == 'Late'"
+                                  class="text-center"
+                                >
+                                  <!-- CHECK STATUS ICON -->
+                                  <!-- Checked -->
+                                  <p>{{ dataOfUser[0] }}</p>
+                                  <v-icon
+                                    color="orange"
+                                    size="100"
+                                    icon="mdi-clock"
+                                    class="mt-2"
+                                  ></v-icon>
+                                </v-col>
+                                <v-col
+                                  cols="12"
+                                  md="6"
                                   v-if="`${dataOfUser[0]}` == 'Absent'"
                                   class="text-center"
                                 >
@@ -145,18 +162,20 @@
                         <v-card
                           class="mx-auto rounded-xl"
                           width="100%"
+                          height="300px"
                           variant="outlined"
                         >
                           <template v-slot:title> Weekly Reports </template>
 
                           <v-card-text class="d-flex justify-center">
                             <div>
+                              <%- include('../partials/dataCharts.ejs'); %>
                               <div class="d-flex justify-center">
-                                <%- include('../partials/dataCharts.ejs'); %>
                                 <canvas
                                   id="weeklyChart"
                                   style="width: 100%; max-width: 600px"
                                 ></canvas>
+                                <div></div>
                               </div>
                             </div>
                           </v-card-text>
@@ -164,7 +183,7 @@
                       </v-col>
                     </v-row>
                     <v-row class="text-start mx-2">
-                      <v-col cols="12" md="6">
+                      <v-col cols="12" md="12">
                         <v-card
                           class="mx-auto rounded-xl"
                           width="100%"
@@ -180,10 +199,30 @@
                                   style="width: 100%; max-width: 600px"
                                 ></canvas>
                               </div>
+
+                              <div>
+                                <input
+                                  type="month"
+                                  id="historyMonthly"
+                                  name="historyMonthly"
+                                  v-model="date.dateMonthly"
+                                />
+                                <v-btn
+                                  @click="fetchUserMonthly()"
+                                  class="mx-auto ml-4"
+                                  color="success"
+                                  icon
+                                >
+                                  <v-icon icon="mdi-cloud-search"></v-icon>
+                                  <!-- SEARCH -->
+                                </v-btn>
+                              </div>
                             </div>
                           </v-card-text>
                         </v-card>
                       </v-col>
+                    </v-row>
+                    <v-row class="text-start mx-2">
                       <v-col cols="12" md="6">
                         <v-card
                           class="mx-auto rounded-xl"
@@ -202,6 +241,39 @@
                             </div>
                           </v-card-text>
                         </v-card>
+                      </v-col>
+                      <!-- SEARCH DIV -->
+                      <v-col cols="12" md="6">
+                        <v-row class="d-flex justify-center mt-10">
+                          <v-col cols="12" md="8">
+                            <v-text-field
+                              color="success"
+                              label="Search"
+                              placeholder="StudentID"
+                              variant="outlined"
+                              :counter="10"
+                              :rules="searchStudentIDRules"
+                              required
+                              v-model="searchStudentID"
+                            ></v-text-field>
+                          </v-col>
+                          <v-col cols="12" md="4">
+                            <v-form
+                              :action="`/data/${searchStudentID}`"
+                              method="GET"
+                              class="d-flex justify-center mt-2"
+                              v-model="valid"
+                            >
+                              <v-btn
+                                class="mx-auto"
+                                color="success"
+                                type="submit"
+                              >
+                                GO
+                              </v-btn>
+                            </v-form>
+                          </v-col>
+                        </v-row>
                       </v-col>
                     </v-row>
                   </v-container>
@@ -448,6 +520,15 @@
       const app = Vue.createApp({
         data() {
           return {
+            valid: false,
+            searchStudentIDRules: [
+              (v) => !!v || "required",
+              (v) => !isNaN(v) || "must be number",
+              (v) =>
+                v.length <= 10 ||
+                "Lastname must be less than or equal to 10 characters",
+            ],
+            searchStudentID: "",
             dataOfUser: "",
             reportsWeekly: "",
             reportsMonthly: "",
@@ -459,6 +540,7 @@
             date: {
               dateSearch: "0000-00-00",
               dateDaily: "0000-00-00",
+              dateMonthly: "0000-00-00",
             },
             showHistory: false,
             loading: false,
@@ -470,15 +552,30 @@
               class: "<%= user.class%>",
               room: "<%= user.room%>",
               no: "<%= user.no%>",
-              role: "<%= user.role%>",
+              role: "<%= reqrole%>",
               password: "",
             },
           };
         },
         mounted: function () {
           //method1 will execute at pageload
+          let todayDate = [
+            new Date().getFullYear().toString(),
+            (new Date().getMonth() + 1).toString(),
+            new Date().getDate().toString(),
+          ];
+          if (todayDate[1] < 10) {
+            todayDate[1] = "0" + todayDate[1];
+          }
+          if (todayDate[2] < 10) {
+            todayDate[2] = "0" + todayDate[2];
+          }
+          this.date.dateDaily = `${todayDate[0]}-${todayDate[1]}-${todayDate[2]}`;
+          this.date.dateMonthly = `${todayDate[0]}-${todayDate[1]}`;
+          console.log(todayDate);
           this.getInitDataPage();
           this.fetchUserDaily();
+          this.fetchUserMonthly();
           this.loading = true;
           setTimeout(() => {
             this.loading = false;
@@ -496,8 +593,26 @@
               .then((datares) => {
                 this.dataOfUser = datares.dataOfUser;
                 this.reportsWeekly = datares.reportsWeekly;
-                this.reportsMonthly = datares.reportsMonthly;
                 loadWeeklyChart(datares.reportsWeekly);
+              })
+              .catch((err) => {
+                console.error("Error: ", err);
+              });
+            this.loading = true;
+            setTimeout(() => {
+              this.loading = false;
+            }, 500);
+          },
+          fetchUserMonthly() {
+            fetch(
+              `/process/get/dataOfUserMonthly/${this.date.dateMonthly}/<%= user.studentID%>/`,
+              {
+                method: "POST",
+              }
+            )
+              .then((res) => res.json())
+              .then((datares) => {
+                this.reportsMonthly = datares.reportsMonthly;
                 loadMonthlyChart(datares.reportsMonthly);
               })
               .catch((err) => {

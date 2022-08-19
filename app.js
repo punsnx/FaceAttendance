@@ -243,6 +243,7 @@ app.get("/data", checkAuthenticated, async (req, res) => {
   if (req.user.profileFile != undefined) {
     res.render("pages/data", {
       title: "Data",
+      reqrole: req.user.role,
       user: req.user,
       profileFile:
         req.protocol +
@@ -254,13 +255,13 @@ app.get("/data", checkAuthenticated, async (req, res) => {
   } else {
     res.render("pages/data", {
       title: "Profile",
+      reqrole: req.user.role,
       user: req.user,
       profileFile: "IMG/noimg.jpeg",
       //profileFile: req.user.profileFile
     });
   }
 });
-
 app.get("/data/:studentID", checkAuthenticated, async (req, res) => {
   const cursor = users.find({ studentID: req.params.studentID });
   var result = await cursor.toArray();
@@ -268,6 +269,7 @@ app.get("/data/:studentID", checkAuthenticated, async (req, res) => {
     if (result[0].profileFile != undefined) {
       res.render("pages/data", {
         title: "Data",
+        reqrole: req.user.role,
         user: result[0],
         profileFile:
           req.protocol +
@@ -279,9 +281,11 @@ app.get("/data/:studentID", checkAuthenticated, async (req, res) => {
     } else {
       res.render("pages/data", {
         title: "Profile",
+        reqrole: req.user.role,
         user: result[0],
         profileFile:
           req.protocol + "://" + req.header("host") + "/IMG/noimg.jpeg",
+
         //profileFile: req.user.profileFile
       });
     }
@@ -422,6 +426,14 @@ app.post(
   checkAuthenticated,
   async (req, res) => {
     dataCompute.computeDataOfUser(req, res);
+  }
+);
+// get init Data Page Data Of User Monthly
+app.post(
+  "/process/get/dataOfUserMonthly/:dateHistory/:studentID/",
+  checkAuthenticated,
+  async (req, res) => {
+    dataCompute.computeDataOfUserMonthly(req, res);
   }
 );
 // get init Data Page class items
