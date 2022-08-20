@@ -22,29 +22,34 @@
                 <%- include('../partials/googlecharts.ejs'); %>
               </div>
               <div v-if="loading == false">
-                <h3>Last Login</h3>
+                <h3>Last Attendance</h3>
                 <v-card
                   class="mx-auto rounded-xl mb-6"
                   width="70%"
                   variant="outlined"
-                  v-for="login in lastLoginData"
+                  v-for="user in lastLoginData"
                 >
                   <template v-slot:title>
-                    <v-avatar>
-                      <img v-bind:src="`${login.profileFile}`" />
-                      <!-- <v-icon icon="mdi-account-circle"></v-icon> -->
-                    </v-avatar>
-                    {{ login.name }} | {{ login.studentID }}
+                    {{ user.name }} | {{ user.studentID }}
                   </template>
-
-                  <v-card-text class="d-flex justify-center">
-                    logged in at {{ login.timestamp.hour }}:{{
-                      login.timestamp.minute
-                    }}:{{ login.timestamp.second }} {{ login.timestamp.apm }} -
-                    Date : {{ login.timestamp.date }}/{{
-                      login.timestamp.month
-                    }}/{{ login.timestamp.year }}
-                  </v-card-text>
+                  <v-container>
+                    <v-row>
+                      <v-col cols="12" md="8">
+                        <v-card-text class="d-flex justify-center">
+                          checked in at {{ user.timestamp.hour }}:{{
+                            user.timestamp.minute
+                          }}:{{ user.timestamp.second }}
+                          {{ user.timestamp.apm }} - Date :
+                          {{ user.timestamp.date }}/{{
+                            user.timestamp.month
+                          }}/{{ user.timestamp.year }}
+                        </v-card-text>
+                      </v-col>
+                      <v-col cols="12" md="4">
+                          <v-img v-bind:src="`${user.profileFile}`" height="100px"/>
+                      </v-col>
+                    </v-row>
+                  </v-container>
                 </v-card>
               </div>
               <!-- DELAY LOADING -->
@@ -66,24 +71,25 @@
         data() {
           return {
             lastLoginData: "",
+            AllUserAttendanceToday: "",
             loading: false,
           };
         },
         mounted: function () {
           //method1 will execute at pageload
           this.loading = true;
-          loadChart();
-          this.getLastLogin();
+          
           setTimeout(() => {
             this.loading = false;
+            this.getLastLogin();
           }, 500);
           // auto fetch update interval
           setInterval(() => {
             this.loading = true;
-            loadChart();
-            this.getLastLogin();
+            
             setTimeout(() => {
               this.loading = false;
+              this.getLastLogin();
             }, 200);
           }, 120000);
         },
@@ -93,6 +99,7 @@
               .then((res) => res.json())
               .then((datares) => {
                 this.lastLoginData = datares.lastlogin;
+                loadChart(datares.AllUserAttendanceToday);
               })
               .catch((err) => {
                 console.error("Error: ", err);

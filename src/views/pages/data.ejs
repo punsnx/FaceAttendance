@@ -222,9 +222,9 @@
                         </v-card>
                       </v-col>
                     </v-row>
-                    <v-row class="text-start mx-2">
+                    <v-row class="d-flex justify-center text-start mx-2">
                       <v-col cols="12" md="6">
-                        <v-card
+                        <!-- <v-card
                           class="mx-auto rounded-xl"
                           width="100%"
                           variant="outlined"
@@ -240,7 +240,7 @@
                               ></v-progress-circular>
                             </div>
                           </v-card-text>
-                        </v-card>
+                        </v-card> -->
                       </v-col>
                       <!-- SEARCH DIV -->
                       <v-col cols="12" md="6">
@@ -301,7 +301,7 @@
               >
                 <div class="mx-auto text-center my-10">
                   <!-- USER HISTORY -->
-                  <v-table theme="dark">
+                  <!-- <v-table theme="dark">
                     <thead>
                       <tr>
                         <th class="text-left">Name</th>
@@ -314,14 +314,14 @@
                         <td>sefsf</td>
                       </tr>
                     </tbody>
-                  </v-table>
+                  </v-table> -->
                   <!-- TEST MENU  -->
-                  <h1>SEL CLASS = {{ selectClass }}</h1>
+                  <!-- <h1>SEL CLASS = {{ selectClass }}</h1>
                   <hr />
                   <h1>SEL ROOM = {{ selectRoom }}</h1>
                   <hr />
                   <h1>SEL DATE = {{ date }}</h1>
-                  <hr />
+                  <hr /> -->
                   <div>
                     <v-container>
                       <!-- CLASS & ROOM FILTER SELECT -->
@@ -420,13 +420,22 @@
                     <v-container>
                       <v-row class="mx-auto justify-center">
                         <v-col cols="12" md="2">
-                          <v-btn
-                            v-bind:href="`${student.dataLink}`"
-                            color="purple"
-                            class="mb-4"
-                          >
-                            Profile
-                          </v-btn>
+                          <div class="d-flex justify-space-around">
+                            <v-btn
+                              v-bind:href="`${student.dataLink}`"
+                              color="purple"
+                              class="mb-4"
+                              icon
+                            >
+                              <!-- Profile -->
+                              <v-icon icon="mdi-account"></v-icon>
+                            </v-btn>
+                            <v-btn color="orange" class="mb-4" icon>
+                              <!-- Edit Attendance-->
+                              <v-icon icon="mdi-pencil"></v-icon>
+                            </v-btn>
+                          </div>
+
                           <div v-if="`${student.history}` == 'Checked'">
                             <v-icon
                               color="success"

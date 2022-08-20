@@ -1,5 +1,5 @@
-const resData = require("./httpStorage");
-
+// BUGS 1 Check Day < 10 01 or 1
+// BUGS 2 Check Check Day If holiday and 2 day before is last month Date is not valid
 const MongoClient = require("mongodb").MongoClient;
 const url = process.env.CON_DB;
 const moment = require("moment");
@@ -8,6 +8,48 @@ const database = client.db("FaceAttendance");
 const users = database.collection("users");
 const attendance = database.collection("Attendance");
 const lastlogin = database.collection("LastLogin");
+async function AllUserAttendanceToday(req, res) {
+  const usersCount = await users.count({});
+  var todayDate = new Date();
+  if (todayDate.getDay() === 6) {
+    todayDate.setDate(todayDate.getDate() - 1);
+  }
+  if (todayDate.getDay() === 0) {
+    todayDate.setDate(todayDate.getDate() - 2);
+  }
+  month = todayDate.getMonth() + 1;
+  if (month < 10) {
+    month = "0" + month;
+  }
+  const query = {
+    $and: [
+      { "timestamp.year": todayDate.getFullYear().toString() },
+      { "timestamp.month": month },
+      { "timestamp.date": todayDate.getDate().toString() },
+    ],
+  };
+  const cursor = attendance.find(query, {
+    sort: { _id: -1 },
+    projection: { _id: 0, studentID: 1, timestamp: 1 },
+  });
+  var result = await cursor.toArray();
+  var arr = [];
+  for (var i = 0; i < result.length; i++) {
+    arr.push(result[i].studentID);
+  }
+  const counts = {};
+  arr.forEach((x) => {
+    counts[x] = (counts[x] || 0) + 1;
+  });
+  const countCheckedToday = Object.keys(counts).length;
+  const countAbsent = usersCount - countCheckedToday;
+
+  // console.log(usersCount, countCheckedToday, counts);
+  return [
+    ["Checked", "Absent"],
+    [countCheckedToday, countAbsent],
+  ];
+}
 exports.computeLastLogin = async (req, res) => {
   const query = {};
   const options = {
@@ -39,8 +81,12 @@ exports.computeLastLogin = async (req, res) => {
       }
     });
   });
-
-  res.send({ lastlogin: result });
+  const AllUserAttendanceTodayData = await AllUserAttendanceToday(req, res);
+  console.log(AllUserAttendanceTodayData);
+  res.send({
+    lastlogin: result,
+    AllUserAttendanceToday: AllUserAttendanceTodayData,
+  });
 };
 
 exports.computeIndex = async (req, res) => {
@@ -403,13 +449,13 @@ exports.computeDataOfUserMonthly = async (req, res) => {
         if (arrCheck[queryDateValue[i]].minute == 0) {
           counts[queryDateValue[i]] = 1;
         } else {
-          counts[queryDateValue[i]] = 0.5;
+          counts[queryDateValue[i]] = 0.7;
         }
       } else {
-        counts[queryDateValue[i]] = 0.5;
+        counts[queryDateValue[i]] = 0.7;
       }
     } else {
-      counts[queryDateValue[i]] = -0.2;
+      counts[queryDateValue[i]] = 0.3;
     }
   }
   var exChartData = [[], [], "", ""];
