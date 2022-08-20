@@ -25,7 +25,7 @@ const googleCloud = require("./googleCloud");
 const editProfileProcess = require("./editProfileProcess.js");
 const mailServer = require("./mailServer");
 const dataCompute = require("./dataCompute.js");
-const profileProcess = require("./profileProcess");
+const editDataProcess = require("./editDataProcess");
 
 // The ID of your GCS bucket
 const bucketName = "skdev-356007.appspot.com";
@@ -448,6 +448,13 @@ app.post(
     dataCompute.computeDataHistoryStudentList(req, res);
   }
 );
+app.post(
+  "/process/editattendancestate/:dateSearch/:studentID/:name/:currentState/:newState/",
+  checkAuthenticated,
+  (req, res) => {
+    editDataProcess.editEachAttendance(req, res);
+  }
+);
 
 const PORT = port || parseInt(process.env.PORT) || 8080;
 http.createServer(app).listen(PORT, () => {
@@ -464,7 +471,9 @@ https
     },
     app
   )
-  .listen(443, () => {});
+  .listen(443, () => {
+    console.log("RUN HTTPS 443");
+  });
 
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {

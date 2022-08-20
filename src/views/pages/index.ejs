@@ -17,40 +17,57 @@
             <v-card
               class="mx-auto justify-center rounded-xl pa-4 my-10"
               flat
-              width="70%"
+              width="90%"
               ><div class="d-flex justify-center">
                 <%- include('../partials/googlecharts.ejs'); %>
               </div>
               <div v-if="loading == false">
                 <h3>Last Attendance</h3>
-                <v-card
-                  class="mx-auto rounded-xl mb-6"
-                  width="70%"
-                  variant="outlined"
-                  v-for="user in lastLoginData"
-                >
-                  <template v-slot:title>
-                    {{ user.name }} | {{ user.studentID }}
-                  </template>
-                  <v-container>
-                    <v-row>
-                      <v-col cols="12" md="8">
-                        <v-card-text class="d-flex justify-center">
-                          checked in at {{ user.timestamp.hour }}:{{
-                            user.timestamp.minute
-                          }}:{{ user.timestamp.second }}
-                          {{ user.timestamp.apm }} - Date :
-                          {{ user.timestamp.date }}/{{
-                            user.timestamp.month
-                          }}/{{ user.timestamp.year }}
-                        </v-card-text>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                          <v-img v-bind:src="`${user.profileFile}`" height="100px"/>
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                </v-card>
+                <v-container>
+                  <v-row>
+                    <v-col v-for="(user, index) in lastLoginData" cols="12" md="3">
+                      <v-card
+                      class="mx-auto rounded-xl"
+                      width="100%"
+                      variant="outlined"
+                      
+                    >
+                      <template v-slot:title>
+                        {{index+1}}. {{ user.studentID }}
+                      </template>
+                      <div >
+                        <v-container>
+                          <v-row>
+                              <v-col cols="12" md="12">
+                                  <v-img class="" v-bind:src="`${user.profileFile}`" height="150px" />
+                              </v-col>
+                              <v-col cols="12" md="12">
+                                <h4>{{ user.name }}</h4>
+                              </v-col>
+                          </v-row>
+                          <v-row>
+                            <v-col cols="12" md="12">
+                              <div>
+                                <p>{{ user.timestamp.hour }}:{{
+                                  user.timestamp.minute
+                                }}:{{ user.timestamp.second }}
+                                {{ user.timestamp.apm }}</p>
+                                <p>
+                                  {{ user.timestamp.date }}/{{
+                                    user.timestamp.month
+                                  }}/{{ user.timestamp.year }}</p>
+                              </div>
+                            </v-col>
+                          </v-row>
+                        </v-container>
+
+                      </div>
+                    </v-card>
+                    </v-col>
+
+                  </v-row>
+                </v-container>
+
               </div>
               <!-- DELAY LOADING -->
               <v-progress-linear

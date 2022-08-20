@@ -56,7 +56,7 @@ exports.computeLastLogin = async (req, res) => {
     sort: { _id: -1 },
     projection: { _id: 0, studentID: 1, name: 1, timestamp: 1 },
   };
-  const cursor = attendance.find(query, options).limit(5);
+  const cursor = attendance.find(query, options).limit(12);
   const result = await cursor.toArray();
   const cursorUsers = users.find(
     {},
@@ -176,7 +176,7 @@ exports.computeDataHistoryStudentList = async (req, res) => {
   console.log(
     "================================================================"
   );
-  console.log(req.params.class, req.params.room);
+  // console.log(req.params.class, req.params.room);
   const query = {
     $and: [{ class: req.params.class }, { room: req.params.room }],
   };
@@ -223,7 +223,7 @@ exports.computeDataHistoryStudentList = async (req, res) => {
     }
   );
   var resultCheckIn = await cursorCheckIn.toArray();
-  console.log(resultCheckIn);
+  // console.log(resultCheckIn);
   try {
     result.forEach((info) => {
       info.history = "Absent";
@@ -239,7 +239,20 @@ exports.computeDataHistoryStudentList = async (req, res) => {
       };
       resultCheckIn.forEach((data) => {
         if (data.studentID == info.studentID) {
-          info.history = "Checked";
+          if (data.timestamp.apm == "AM") {
+            if (data.timestamp.hour <= 8) {
+              //CHECK late
+              if (data.timestamp.minute == 0) {
+                info.history = "Checked";
+              } else {
+                info.history = "Late";
+              }
+            } else {
+              info.history = "Late";
+            }
+          } else {
+            info.history = "Late";
+          }
           info.timestamp = data.timestamp;
         }
       });
@@ -260,7 +273,7 @@ exports.computeDataHistoryStudentList = async (req, res) => {
   } catch {
     console.error();
   }
-  console.log(result);
+  // console.log(result);
   res.send({ studentList: result });
 };
 exports.computeDataOfUser = async (req, res) => {
@@ -292,10 +305,14 @@ exports.computeDataOfUser = async (req, res) => {
   var todayState;
   if (resultToday.length > 0) {
     resultToday = resultToday[0];
-    if (resultToday.timestamp.hour <= 8) {
-      //CHECK late
-      if (resultToday.timestamp.minute == 0) {
-        todayState = "Checked";
+    if (resultToday.timestamp.apm == "AM") {
+      if (resultToday.timestamp.hour <= 8) {
+        //CHECK late
+        if (resultToday.timestamp.minute == 0) {
+          todayState = "Checked";
+        } else {
+          todayState = "Late";
+        }
       } else {
         todayState = "Late";
       }
@@ -436,6 +453,7 @@ exports.computeDataOfUserMonthly = async (req, res) => {
     arrCheck[result[i].timestamp.date] = {
       hour: result[i].timestamp.hour,
       minute: result[i].timestamp.minute,
+      apm: result[i].timestamp.apm,
     };
   }
   const counts = {};
@@ -444,15 +462,19 @@ exports.computeDataOfUserMonthly = async (req, res) => {
   });
   for (i in queryDateValue) {
     if (queryDateValue[i] in counts) {
-      if (arrCheck[queryDateValue[i]].hour <= 8) {
-        //CHECK late
-        if (arrCheck[queryDateValue[i]].minute == 0) {
-          counts[queryDateValue[i]] = 1;
+      if (arrCheck[queryDateValue[i]].apm == "AM") {
+        if (arrCheck[queryDateValue[i]].hour <= 8) {
+          //CHECK late
+          if (arrCheck[queryDateValue[i]].minute == 0) {
+            counts[queryDateValue[i]] = 1;
+          } else {
+            counts[queryDateValue[i]] = 0.7;
+          }
         } else {
           counts[queryDateValue[i]] = 0.7;
         }
       } else {
-        counts[queryDateValue[i]] = 0.7;
+        counts[queryDateValue[i]] = 0.3;
       }
     } else {
       counts[queryDateValue[i]] = 0.3;

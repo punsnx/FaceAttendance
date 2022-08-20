@@ -32,7 +32,7 @@
                           <v-card
                             class="mx-auto rounded-xl"
                             width="100%"
-                            height="300px"
+                            height="350px"
                             variant="outlined"
                           >
                             <template v-slot:title> Daily Reports </template>
@@ -67,22 +67,23 @@
                                       Class : <%=user.class%>/<%=user.room%>
                                       Number : <%=user.no%>
                                     </p>
-                                    <p v-if="`${dataOfUser[0]}` == 'Checked'">
-                                      Check Status : {{ dataOfUser[0] }}
-                                    </p>
-                                    <p v-if="`${dataOfUser[0]}` == 'Checked'">
-                                      Timestamp :
-                                      {{ dataOfUser[1].timestamp.hour }}:{{
-                                        dataOfUser[1].timestamp.minute
-                                      }}
-                                      {{ dataOfUser[1].timestamp.apm }}
-                                    </p>
-                                    <p v-if="`${dataOfUser[0]}` == 'Checked'">
-                                      Date :
-                                      {{ dataOfUser[1].timestamp.date }}/{{
-                                        dataOfUser[1].timestamp.month
-                                      }}/{{ dataOfUser[1].timestamp.year }}
-                                    </p>
+                                    <div
+                                      v-if="`${dataOfUser[0]}` == 'Checked' || `${dataOfUser[0]}` == 'Late'"
+                                    >
+                                      <p>
+                                        Timestamp :
+                                        {{ dataOfUser[1].timestamp.hour }}:{{
+                                          dataOfUser[1].timestamp.minute
+                                        }}
+                                        {{ dataOfUser[1].timestamp.apm }}
+                                      </p>
+                                      <p>
+                                        Date :
+                                        {{ dataOfUser[1].timestamp.date }}/{{
+                                          dataOfUser[1].timestamp.month
+                                        }}/{{ dataOfUser[1].timestamp.year }}
+                                      </p>
+                                    </div>
                                   </div>
                                 </v-col>
                                 <v-col
@@ -162,7 +163,7 @@
                         <v-card
                           class="mx-auto rounded-xl"
                           width="100%"
-                          height="300px"
+                          height="350px"
                           variant="outlined"
                         >
                           <template v-slot:title> Weekly Reports </template>
@@ -171,11 +172,12 @@
                             <div>
                               <%- include('../partials/dataCharts.ejs'); %>
                               <div class="d-flex justify-center">
-                                <canvas
-                                  id="weeklyChart"
-                                  style="width: 100%; max-width: 600px"
-                                ></canvas>
-                                <div></div>
+                                <div style="position: relative; width: 400px">
+                                  <canvas
+                                    id="weeklyChart"
+                                    style="width: 100%; max-width: 600px"
+                                  ></canvas>
+                                </div>
                               </div>
                             </div>
                           </v-card-text>
@@ -196,7 +198,7 @@
                               <div class="d-flex justify-center">
                                 <canvas
                                   id="monthlyChart"
-                                  style="width: 100%; max-width: 600px"
+                                  style="width: 100%"
                                 ></canvas>
                               </div>
 
@@ -417,25 +419,10 @@
                     width="80%"
                     variant="outlined"
                   >
+                    {{ newToggleEditAttendanceSettings(student) }}
                     <v-container>
                       <v-row class="mx-auto justify-center">
                         <v-col cols="12" md="2">
-                          <div class="d-flex justify-space-around">
-                            <v-btn
-                              v-bind:href="`${student.dataLink}`"
-                              color="purple"
-                              class="mb-4"
-                              icon
-                            >
-                              <!-- Profile -->
-                              <v-icon icon="mdi-account"></v-icon>
-                            </v-btn>
-                            <v-btn color="orange" class="mb-4" icon>
-                              <!-- Edit Attendance-->
-                              <v-icon icon="mdi-pencil"></v-icon>
-                            </v-btn>
-                          </div>
-
                           <div v-if="`${student.history}` == 'Checked'">
                             <v-icon
                               color="success"
@@ -444,6 +431,16 @@
                               class="mt-2"
                             ></v-icon>
                             <!-- Checked -->
+                            <p>{{ student.history }}</p>
+                          </div>
+                          <div v-if="`${student.history}` == 'Late'">
+                            <v-icon
+                              color="orange"
+                              size="30"
+                              icon="mdi-clock"
+                              class="mt-2"
+                            ></v-icon>
+                            <!-- Late -->
                             <p>{{ student.history }}</p>
                           </div>
                           <div v-if="`${student.history}` == 'Absent'">
@@ -457,7 +454,8 @@
                             <p>{{ student.history }}</p>
                           </div>
                         </v-col>
-                        <v-col cols="12" md="6">
+
+                        <v-col cols="12" md="5">
                           <div class="d-flex justify-center">
                             <div>
                               <p class="font-weight-black text-h8">
@@ -481,16 +479,77 @@
                                 {{ student.timestamp.apm }}
                               </p>
                               <p v-else>Timestamp : -</p>
+                              <div
+                                v-if="toggleEditAttendance[student.studentID].toggleEdit == true"
+                              >
+                                <v-container>
+                                  <v-row>
+                                    <v-col cols="12" md="10">
+                                      <v-select
+                                        name="newState"
+                                        v-model="toggleEditAttendance[student.studentID].newState"
+                                        :items="newStateItems"
+                                        label="New State"
+                                        return-object
+                                      ></v-select>
+                                    </v-col>
+                                    <v-col cols="12" md="2">
+                                      <v-btn
+                                        color="success"
+                                        class="mt-4"
+                                        @click="changeNewAttendanceState(student.studentID,student.name)"
+                                        v-if="toggleEditAttendance[student.studentID].toggleEdit == true"
+                                      >
+                                        SAVE
+                                      </v-btn>
+                                    </v-col>
+                                  </v-row>
+                                </v-container>
+                              </div>
                             </div>
                           </div>
                         </v-col>
-                        <v-col cols="12" md="4">
+
+                        <v-col cols="12" md="3">
                           <v-img
-                            width="50%"
+                            width="60%"
                             class="mx-auto rounded"
                             v-bind:src="`${student.profileFile}`"
                           >
                           </v-img>
+                        </v-col>
+                        <v-col cols="12" md="2">
+                          <div class="d-flex justify-space-around">
+                            <v-btn
+                              v-bind:href="`${student.dataLink}`"
+                              color="purple"
+                              class="mb-4"
+                              icon
+                            >
+                              <!-- Profile -->
+                              <v-icon icon="mdi-account"></v-icon>
+                            </v-btn>
+                            <v-btn
+                              color="orange"
+                              class="mb-4"
+                              icon
+                              @click="toggleEditAttendance[student.studentID].toggleEdit = !(toggleEditAttendance[student.studentID].toggleEdit)"
+                              v-if="toggleEditAttendance[student.studentID].toggleEdit == false"
+                            >
+                              <!-- Edit Attendance-->
+                              <v-icon icon="mdi-pencil"></v-icon>
+                            </v-btn>
+                            <v-btn
+                              color="red"
+                              class="mb-4"
+                              icon
+                              @click="toggleEditAttendance[student.studentID].toggleEdit = !(toggleEditAttendance[student.studentID].toggleEdit)"
+                              v-if="toggleEditAttendance[student.studentID].toggleEdit == true"
+                            >
+                              <!-- Edit Attendance-->
+                              <v-icon icon="mdi-close-box"></v-icon>
+                            </v-btn>
+                          </div>
                         </v-col>
                       </v-row>
                     </v-container>
@@ -547,6 +606,7 @@
             roomItems: [],
             searchStudentList: "",
             date: {
+              refTodayDate: "",
               dateSearch: "0000-00-00",
               dateDaily: "0000-00-00",
               dateMonthly: "0000-00-00",
@@ -564,6 +624,8 @@
               role: "<%= reqrole%>",
               password: "",
             },
+            toggleEditAttendance: {},
+            newStateItems: ["Absent", "Checked", "Late"],
           };
         },
         mounted: function () {
@@ -579,6 +641,8 @@
           if (todayDate[2] < 10) {
             todayDate[2] = "0" + todayDate[2];
           }
+          this.date.refTodayDate = `${todayDate[0]}-${todayDate[1]}-${todayDate[2]}`;
+          this.date.dateSearch = `${todayDate[0]}-${todayDate[1]}-${todayDate[2]}`;
           this.date.dateDaily = `${todayDate[0]}-${todayDate[1]}-${todayDate[2]}`;
           this.date.dateMonthly = `${todayDate[0]}-${todayDate[1]}`;
           console.log(todayDate);
@@ -671,7 +735,32 @@
             this.selectRoom = "";
             this.roomItems = [];
             this.searchStudentList = "";
-            this.date.dateSearch = "0000-00-00";
+            this.date.dateSearch = this.date.refTodayDate;
+            this.toggleEditAttendance = {};
+          },
+          newToggleEditAttendanceSettings(data) {
+            this.toggleEditAttendance[data.studentID] = {
+              toggleEdit: false,
+              currentState: data.history,
+              newState: data.history,
+            };
+          },
+          changeNewAttendanceState(studentid, name) {
+            fetch(
+              `/process/editattendancestate/${
+                this.date.dateSearch
+              }/${studentid}/${name.replace(" ", "-")}/${
+                this.toggleEditAttendance[studentid].currentState
+              }/${this.toggleEditAttendance[studentid].newState}`,
+              { method: "POST" }
+            )
+              .then((res) => res.json())
+              .then((datares) => {
+                this.actionSubmit();
+              })
+              .catch((err) => {
+                console.error("Error: ", err);
+              });
           },
         },
       });
