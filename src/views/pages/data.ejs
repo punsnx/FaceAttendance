@@ -21,7 +21,7 @@
                 v-show="!showHistory"
                 class="mx-auto mt-10 rounded-xl text-center"
                 color="white"
-                width="80%"
+                width="90%"
                 title="<%= user.firstname %> <%= user.lastname %>'s Data"
               >
                 <div class="mx-auto">
@@ -56,7 +56,7 @@
                                 <v-col
                                   cols="12"
                                   md="6"
-                                  class="d-flex justify-center"
+                                  class="d-flex justify-space-around"
                                 >
                                   <div class="ml-4 text-start">
                                     <p>
@@ -86,52 +86,32 @@
                                     </div>
                                   </div>
                                 </v-col>
-                                <v-col
-                                  cols="12"
-                                  md="6"
-                                  v-if="`${dataOfUser[0]}` == 'Checked'"
-                                  class="text-center"
-                                >
-                                  <!-- CHECK STATUS ICON -->
-                                  <!-- Checked -->
+                                <v-col cols="12" md="6" class="text-center">
                                   <p>{{ dataOfUser[0] }}</p>
                                   <v-icon
                                     color="success"
                                     size="100"
                                     icon="mdi-checkbox-marked-circle"
                                     class="mt-2"
+                                    v-if="`${dataOfUser[0]}` == 'Checked'"
                                   ></v-icon>
-                                </v-col>
-                                <v-col
-                                  cols="12"
-                                  md="6"
-                                  v-if="`${dataOfUser[0]}` == 'Late'"
-                                  class="text-center"
-                                >
-                                  <!-- CHECK STATUS ICON -->
                                   <!-- Checked -->
-                                  <p>{{ dataOfUser[0] }}</p>
                                   <v-icon
                                     color="orange"
                                     size="100"
                                     icon="mdi-clock"
                                     class="mt-2"
+                                    v-if="`${dataOfUser[0]}` == 'Late'"
                                   ></v-icon>
-                                </v-col>
-                                <v-col
-                                  cols="12"
-                                  md="6"
-                                  v-if="`${dataOfUser[0]}` == 'Absent'"
-                                  class="text-center"
-                                >
-                                  <!-- NOT CHECK IN STATUS ICON -->
-                                  <p>{{ dataOfUser[0] }}</p>
+                                  <!-- Late -->
                                   <v-icon
-                                    color="grey"
+                                    color="red"
                                     size="100"
-                                    icon="mdi-note-off"
+                                    icon="mdi-cancel"
                                     class="mt-2"
+                                    v-if="`${dataOfUser[0]}` == 'Absent'"
                                   ></v-icon>
+                                  <!-- NOT CHECK IN STATUS ICON -->
                                 </v-col>
                                 <v-col
                                   cols="12"
@@ -168,19 +148,59 @@
                         >
                           <template v-slot:title> Weekly Reports </template>
 
-                          <v-card-text class="d-flex justify-center">
-                            <div>
-                              <%- include('../partials/dataCharts.ejs'); %>
-                              <div class="d-flex justify-center">
-                                <div style="position: relative; width: 400px">
-                                  <canvas
-                                    id="weeklyChart"
-                                    style="width: 100%; max-width: 600px"
-                                  ></canvas>
+                          <%- include('../partials/dataCharts.ejs'); %>
+
+                          <v-comtainer>
+                            <v-row>
+                              <v-col
+                                cols="12"
+                                md="12"
+                                class="d-flex justify-space-around"
+                              >
+                                <!-- <div style="position: relative; width: 400px">
+                                </div> -->
+                                <canvas
+                                  id="weeklyChart"
+                                  style="width: 100%; max-width: 425px"
+                                ></canvas>
+                              </v-col>
+                            </v-row>
+                            <v-row>
+                              <v-col
+                                cols="12"
+                                md="12"
+                                class="d-flex justify-space-around"
+                              >
+                                <div v-for="(data,index) in reportsWeekly[2]">
+                                  <v-icon
+                                    color="success"
+                                    size="30"
+                                    icon="mdi-checkbox-marked-circle"
+                                    class="mt-2"
+                                    v-if="reportsWeekly[3][index] == 1"
+                                  ></v-icon>
+                                  <!-- Checked -->
+                                  <v-icon
+                                    color="orange"
+                                    size="30"
+                                    icon="mdi-clock"
+                                    class="mt-2"
+                                    v-if="reportsWeekly[3][index] == 0.7"
+                                  ></v-icon>
+                                  <!-- Late -->
+                                  <v-icon
+                                    color="red"
+                                    size="30"
+                                    icon="mdi-cancel"
+                                    class="mt-2"
+                                    v-if="reportsWeekly[3][index] == 0"
+                                  ></v-icon>
+                                  <!-- Absent -->
+                                  <p>{{ data }}</p>
                                 </div>
-                              </div>
-                            </div>
-                          </v-card-text>
+                              </v-col>
+                            </v-row>
+                          </v-comtainer>
                         </v-card>
                       </v-col>
                     </v-row>
@@ -756,7 +776,9 @@
             )
               .then((res) => res.json())
               .then((datares) => {
-                this.actionSubmit();
+                setTimeout(() => {
+                  this.actionSubmit();
+                }, 500);
               })
               .catch((err) => {
                 console.error("Error: ", err);

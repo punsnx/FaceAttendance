@@ -7,7 +7,7 @@ const client = new MongoClient(url);
 const database = client.db("FaceAttendance");
 const users = database.collection("users");
 const attendance = database.collection("Attendance");
-const lastlogin = database.collection("LastLogin");
+const lastlogin = database.collection("LastLogin"); //forcheck loginCollection
 async function AllUserAttendanceToday(req, res) {
   const usersCount = await users.count({});
   var todayDate = new Date();
@@ -17,15 +17,20 @@ async function AllUserAttendanceToday(req, res) {
   if (todayDate.getDay() === 0) {
     todayDate.setDate(todayDate.getDate() - 2);
   }
-  month = todayDate.getMonth() + 1;
+  var month = todayDate.getMonth() + 1;
+  var day = todayDate.getDate().toString();
+  if (day < 10) {
+    day = "0" + day;
+  }
   if (month < 10) {
     month = "0" + month;
   }
+
   const query = {
     $and: [
       { "timestamp.year": todayDate.getFullYear().toString() },
       { "timestamp.month": month },
-      { "timestamp.date": todayDate.getDate().toString() },
+      { "timestamp.date": day },
     ],
   };
   const cursor = attendance.find(query, {
@@ -82,7 +87,7 @@ exports.computeLastLogin = async (req, res) => {
     });
   });
   const AllUserAttendanceTodayData = await AllUserAttendanceToday(req, res);
-  console.log(AllUserAttendanceTodayData);
+  // console.log(AllUserAttendanceTodayData);
   res.send({
     lastlogin: result,
     AllUserAttendanceToday: AllUserAttendanceTodayData,
@@ -134,7 +139,7 @@ exports.computeUsersClassCount = async (req, res) => {
   for (var i = 0; i < result.length; i++) {
     classArr.push(result[i].class);
   }
-  console.log(classArr);
+  // console.log(classArr);
   const counts = {};
   classArr.forEach((x) => {
     counts[x] = (counts[x] || 0) + 1;
@@ -155,28 +160,24 @@ exports.computeUsersClassCount = async (req, res) => {
     );
     roomArr[x] = [];
     resultRoom = await cursorRoom.toArray();
-    console.log(x, resultRoom);
+    // console.log(x, resultRoom);
     for (var i = 0; i < resultRoom.length; i++) {
       roomArr[x].push(resultRoom[i].room);
     }
-    console.log(x, roomArr);
+    // console.log(x, roomArr);
     countsRoom = {};
     roomArr[x].forEach((x) => {
       countsRoom[x] = (countsRoom[x] || 0) + 1;
     });
-    console.log(x, countsRoom);
+    // console.log(x, countsRoom);
     //ITEMS
     items.push({ class: x, room: countsRoom });
   }
 
-  console.log(items);
+  // console.log(items);
   res.send({ classitems: items });
 };
 exports.computeDataHistoryStudentList = async (req, res) => {
-  console.log(
-    "================================================================"
-  );
-  // console.log(req.params.class, req.params.room);
   const query = {
     $and: [{ class: req.params.class }, { room: req.params.room }],
   };
@@ -343,8 +344,24 @@ async function computeDataOfUserWeekly(req, res) {
     month = "0" + month;
   }
 
-  console.log(todayDate);
+  // console.log(todayDate);
   var queryDateValue = [];
+  while (day <= new Date(todayDate.getFullYear(), month, 0).getDate()) {
+    todayDate.setDate(day);
+    dayOfWeek = todayDate.getDay();
+    if (dayOfWeek === 6 || dayOfWeek === 0) {
+      day--;
+      break;
+    } else {
+      if (day >= new Date(todayDate.getFullYear(), month, 0).getDate()) {
+        day = new Date(todayDate.getFullYear(), month, 0).getDate();
+        break;
+      } else {
+        day++;
+      }
+    }
+  }
+
   for (day; day > 0; day--) {
     todayDate.setDate(day);
     dayOfWeek = todayDate.getDay();
@@ -352,9 +369,20 @@ async function computeDataOfUserWeekly(req, res) {
       break;
     } else {
       queryDateValue.push(todayDate.getDate().toString());
-      console.log(todayDate, dayOfWeek, day);
+      // console.log(todayDate, dayOfWeek, day);
     }
   }
+  // for (day; todayDate.getDay() === 0 || todayDate.getDay() === 6; day--) {
+  //   todayDate.setDate(day);
+  //   queryDateValue.push(todayDate.getDate().toString());
+  // }
+  queryDateValue.forEach((currentValue, index) => {
+    console.log(currentValue, index);
+    if (queryDateValue[index] < 10) {
+      queryDateValue[index] = "0" + queryDateValue[index];
+    }
+  });
+  console.log("Weekly QueryDataValue", queryDateValue);
   const query = {
     $and: [
       { studentID: req.params.studentID },
@@ -369,25 +397,67 @@ async function computeDataOfUserWeekly(req, res) {
   cursor = attendance.find(query, options);
   result = await cursor.toArray();
   var arr = [];
+  var arrCheck = {};
   for (var i = 0; i < result.length; i++) {
     arr.push(result[i].timestamp.date);
+    arrCheck[result[i].timestamp.date] = {
+      hour: result[i].timestamp.hour,
+      minute: result[i].timestamp.minute,
+      apm: result[i].timestamp.apm,
+    };
   }
   const counts = {};
   arr.forEach((x) => {
     counts[x] = (counts[x] || 0) + 1;
   });
+  var exChartData = [["Checked", "Late", "Absent"], [0, 0, 0], [], []];
+  // for (i in queryDateValue) {
+  //   if (queryDateValue[i] in counts) {
+  //     exChartData[1][0] = exChartData[1][0] + 1;
+  //     counts[queryDateValue[i]] = 1;
+  //   } else {
+  //     exChartData[1][2] = exChartData[1][2] + 1;
+  //     counts[queryDateValue[i]] = 0;
+  //   }
+  // }
   for (i in queryDateValue) {
     if (queryDateValue[i] in counts) {
-      counts[queryDateValue[i]] = 1;
+      if (arrCheck[queryDateValue[i]].apm == "AM") {
+        if (arrCheck[queryDateValue[i]].hour <= 8) {
+          //CHECK late
+          if (arrCheck[queryDateValue[i]].minute == 0) {
+            exChartData[1][0] = exChartData[1][0] + 1;
+            counts[queryDateValue[i]] = 1;
+          } else {
+            exChartData[1][1] = exChartData[1][1] + 1;
+            counts[queryDateValue[i]] = 0.7;
+          }
+        } else {
+          exChartData[1][1] = exChartData[1][1] + 1;
+          counts[queryDateValue[i]] = 0.7;
+        }
+      } else {
+        exChartData[1][1] = exChartData[1][1] + 1;
+        counts[queryDateValue[i]] = 0.7;
+      }
     } else {
+      exChartData[1][2] = exChartData[1][2] + 1;
       counts[queryDateValue[i]] = 0;
     }
   }
-  var exChartData = [[], []];
-  for (j in counts) {
-    exChartData[0].push("DAY" + j);
-    exChartData[1].push(counts[j]);
+  var sortCounts = Object.keys(counts).sort(function (a, b) {
+    return a - b;
+  });
+  var newSortCounts = {};
+  sortCounts.forEach((x) => {
+    newSortCounts[x] = counts[x];
+  });
+  // console.log("Sort Counts", sortCounts, newSortCounts);
+  for (j in newSortCounts) {
+    exChartData[2].push("DAY" + j);
+    exChartData[3].push(newSortCounts[j]);
   }
+  // console.log(counts, exChartData);
   // console.log(
   //   "Weekly",
   //   month,
@@ -424,15 +494,24 @@ exports.computeDataOfUserMonthly = async (req, res) => {
   }
 
   var queryDateValue = [];
-  for (day; day > 0; day--) {
+  for (
+    day = new Date(todayDate.getFullYear(), month, 0).getDate();
+    day > 0;
+    day--
+  ) {
     todayDate.setDate(day);
     dayOfWeek = todayDate.getDay();
     if (dayOfWeek === 6 || dayOfWeek === 0) {
     } else {
-      queryDateValue.push(todayDate.getDate().toString());
-      // console.log(todayDate, dayOfWeek, day);
+      let dayCheckLess = todayDate.getDate().toString();
+      if (todayDate.getDate() < 10) {
+        dayCheckLess = "0" + todayDate.getDate().toString();
+      }
+      queryDateValue.push(dayCheckLess);
+      // console.log(todayDate, dayOfWeek, day, dayCheckLess);
     }
   }
+  // console.log(queryDateValue);
   const query = {
     $and: [
       { studentID: req.params.studentID },
@@ -441,27 +520,39 @@ exports.computeDataOfUserMonthly = async (req, res) => {
       { "timestamp.date": { $in: queryDateValue } },
     ],
   };
+
   const options = {
-    sort: { _id: -1 },
+    sort: { "timestamp.date": -1 },
   };
   cursor = attendance.find(query, options);
   result = await cursor.toArray();
+  for (i in queryDateValue) {
+    if (queryDateValue[i] < 10) {
+      queryDateValue[i] = queryDateValue[i].replace("0", "");
+    }
+  }
+  // console.log("Reult & queryDateValue", result, queryDateValue);
   var arr = [];
   var arrCheck = {};
-  for (var i = 0; i < result.length; i++) {
-    arr.push(result[i].timestamp.date);
-    arrCheck[result[i].timestamp.date] = {
+  for (i in result) {
+    // console.log("Check i", i);
+    arr.push(parseInt(result[i].timestamp.date));
+    arrCheck[parseInt(result[i].timestamp.date)] = {
       hour: result[i].timestamp.hour,
       minute: result[i].timestamp.minute,
       apm: result[i].timestamp.apm,
     };
   }
   const counts = {};
+  // console.log("ARR CHECK", arr, arrCheck);
   arr.forEach((x) => {
+    // console.log(x);
     counts[x] = (counts[x] || 0) + 1;
   });
+  // console.log("Counts", counts);
   for (i in queryDateValue) {
     if (queryDateValue[i] in counts) {
+      // console.log(i, queryDateValue[i], "TRUE");
       if (arrCheck[queryDateValue[i]].apm == "AM") {
         if (arrCheck[queryDateValue[i]].hour <= 8) {
           //CHECK late
@@ -474,19 +565,22 @@ exports.computeDataOfUserMonthly = async (req, res) => {
           counts[queryDateValue[i]] = 0.7;
         }
       } else {
-        counts[queryDateValue[i]] = 0.3;
+        counts[queryDateValue[i]] = 0.7;
       }
     } else {
+      // console.log(i, queryDateValue[i], "FLASE");
       counts[queryDateValue[i]] = 0.3;
     }
   }
   var exChartData = [[], [], "", ""];
+
   for (j in counts) {
     exChartData[0].push("D" + j);
     exChartData[1].push(counts[j]);
     exChartData[2] = month.toString();
     exChartData[3] = todayDate.getFullYear().toString();
   }
+  // console.log(counts);
   // console.log(queryDateValue, counts, exChartData);
   // TestMonthly(req, res);
   res.send({ reportsMonthly: exChartData });
@@ -499,6 +593,6 @@ exports.computeDataOfUserAllTime = async (req, res) => {
     if (yearNow == new Date().getFullYear()) {
     } else {
     }
-    console.log(yearNow);
+    // console.log(yearNow);
   }
 };

@@ -456,7 +456,7 @@ app.post(
   }
 );
 
-const PORT = port || parseInt(process.env.PORT) || 8080;
+const PORT = 3000 || parseInt(process.env.PORT) || 8080;
 http.createServer(app).listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
   console.log("Press Ctrl+C to quit.");

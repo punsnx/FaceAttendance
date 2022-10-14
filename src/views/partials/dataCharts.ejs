@@ -2,6 +2,7 @@
 
 <script>
   function loadWeeklyChart(d) {
+    console.log(d);
     const data = {
       labels: d[0],
       datasets: [
@@ -9,9 +10,9 @@
           label: "Weekly Reports",
           data: d[1],
           backgroundColor: [
+            "rgba(75, 192, 108)", // GREEN-AQUA
+            "rgba(255, 159, 64)", //ORANGE
             "rgb(255, 99, 132)",
-            "rgb(54, 162, 235)",
-            "rgb(255, 205, 86)",
             "rgb(162, 255, 86)",
             "rgb(255, 134, 86)",
           ],

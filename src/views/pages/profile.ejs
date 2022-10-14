@@ -24,8 +24,14 @@
               width="80%"
               title="<%= name.firstname %>'s' Profile"
 
-            >
-              <div class="mx-auto mb-10">
+              >
+              <!-- DELAY LOADING -->
+              <v-progress-linear
+              v-if="loading == true"
+              indeterminate
+              color="green"
+            ></v-progress-linear>
+              <div class="mx-auto mb-10" v-if="loading == false">
                 <v-container>
                   <v-row class="text-start ml-10">
                     <v-col cols="12" md="6"><h3>Username : <%= name.username %></h3></v-col>
@@ -59,7 +65,7 @@
               width="80%"
               title="EDITOR"
               v-show="showEdit"
-            >
+              >
               <div class="mx-auto text-center my-10">
                 <!-- EDIT PERSONAL -->
                 <div>
@@ -281,6 +287,8 @@
                   EXIT
                 </v-btn>
               </div>
+
+
             </v-card>
           </div>
         </v-main>
@@ -292,6 +300,7 @@
       const vuetify = Vuetify.createVuetify("./MongoDB.js");
       const app = Vue.createApp({
         data: () => ({
+          loading: false,
           valid: false,
           emailRules: [
             (v) => !!v || "E-mail is required",
@@ -345,6 +354,14 @@
             password: "",
           },
         }),
+        mounted: function () {
+          this.loading = true;
+          
+          setTimeout(() => {
+            this.loading = false;
+
+          }, 1000);
+        },
 
         methods: {
           // test() {
